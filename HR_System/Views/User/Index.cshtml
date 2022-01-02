@@ -1,0 +1,69 @@
+﻿@model  List<User>
+
+@{
+    ViewData["Title"] = "Users Information";
+    
+}
+
+
+<section id="configuration">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-wrap bar-success">
+                        <h4 class="card-title">Users Information</h4>
+                    </div>
+                </div>
+                <div class="card-body collapse show">
+                    <div class="card-block card-dashboard">
+                        <div class="row"><div class="col-sm-12 col-md-3">
+        <div class="dataTables_length" id="DataTables_Table_0_length">
+            <label>Show 
+                <select class="form-control form-control-sm" id="show">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option> 
+                </select> 
+            </label>
+        </div>
+    </div>
+    <div class="col-lg-1"></div> 
+        <div class="col-sm-12 col-md-3">
+            <div id="DataTables_Table_0_filter" class="dataTables_filter"><label>Search:<input type="text" id="srch" class="form-control form-control-sm"></label></div>
+        </div>
+    <div class="col-lg-1"></div>
+     <div class="col-lg-3">
+                            @if (ViewBag.groupId == null || ViewBag.groupId.Add)
+                            {
+                                <button id="adduser" class="btn btn-primary mb-2">
+                                    <i class="ft-plus"></i>&nbsp;
+                                    <a asp-action="addUser" asp-controller="User" >  Add new User</a>
+                                </button>
+                            }
+                            </div>
+                           
+                            </div> 
+                            <div id="renderusers">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section scripts{
+    <script>
+        $(function(){
+            $("#renderusers").load("allusers")
+        })
+        $("#srch").on("keyup",function(){
+            $("#renderusers").load("allusers?search="+$("#srch").val())
+        })
+        $("#show").on("change",function(){
+             $("#renderusers").load("allusers?show="+$("#show").val()+"&search="+$("#srch").val())
+        })
+    </script>
+}

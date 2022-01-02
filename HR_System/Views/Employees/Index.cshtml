@@ -1,0 +1,42 @@
+﻿@model IEnumerable<HR_System.Models.Employee>
+
+<div class="row">
+    <div class="col-sm-12 col-md-3">
+        <div class="dataTables_length" id="DataTables_Table_0_length">
+            <label>Show 
+                <select class="form-control form-control-sm" id="show">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option> 
+                    <option value="2">2</option> 
+                </select> 
+            </label>
+        </div>
+    </div>
+    <div class="col-lg-1"></div> 
+        <div class="col-sm-12 col-md-3">
+            <div id="DataTables_Table_0_filter" class="dataTables_filter"><label>Search:<input type="text" id="srch" class="form-control form-control-sm"></label></div>
+        </div>
+    <div class="col-lg-1"></div>
+    <div class="col-lg-3"><i class="ft-plus"></i>&nbsp;
+        <a asp-action = "create" class="btn btn-primary mb-2"> Add new Employee</a>
+    </div>
+</div> 
+
+<div id="renderemployees">
+
+</div>
+@section scripts{
+    <script>
+        $(function(){
+            $("#renderemployees").load("allemployees")
+        })
+        $("#srch").on("keyup",function(){
+            $("#renderemployees").load("allemployees?search="+$("#srch").val())
+        })
+        $("#show").on("change",function(){
+             $("#renderemployees").load("allemployees?show="+$("#show").val()+"&search="+$("#srch").val())
+        })
+    </script>
+}

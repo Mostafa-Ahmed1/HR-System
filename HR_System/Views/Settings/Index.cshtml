@@ -1,0 +1,85 @@
+﻿@model HR_System.Models.Setting
+
+@{
+    ViewData["Title"] = "Index";
+
+}
+
+<section id="horizontal-form-layouts" >
+	
+	<div class="row" >
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">
+					<div class="card-title-wrap bar-success">
+						<h4 class="card-title" id="horz-layout-basic">General Settings Form </h4>
+					</div>
+					<p class="mb-0">This is the basic horizontal form with labels on left and cost estimation form is the default position.</p>
+				</div>
+				<div class="card-body">
+					<div class="px-3">
+						<form method="post" class="form form-horizontal">
+								@Html.HiddenFor(n=>n.SettingId)
+
+							<div class="form-body">
+								<h4 class="form-section">
+									<i class="icon-user"></i>General information</h4>
+								<div class="form-group row">
+									<label asp-for="PlusPerhour" class="col-md-3 label-control" for="projectinput1">The extra: </label>
+									<div class="col-md-9">
+				                 		<span asp-validation-for="PlusPerhour" class="text-danger"></span>
+
+										<input asp-for="PlusPerhour" type="text" id="projectinput1" class="form-control" name="PlusPerhour" >
+									</div>
+								</div>
+								<div class="form-group row">
+									<label asp-for="MinusPerhour" class="col-md-3 label-control" for="projectinput2">
+                                        Discount: </label>
+									<div class="col-md-9">
+				                 		<span asp-validation-for="MinusPerhour" class="text-danger"></span>
+
+										<input asp-for="MinusPerhour" type="text" id="projectinput2" class="form-control" name="MinusPerhour">             
+									</div>
+								</div>
+									<div class="form-group row">
+									<label asp-for="Dayoff1" class="col-md-3 label-control" for="projectinput3">
+                                        First Day: </label>
+									<div class="col-md-9">
+				                 		<span asp-validation-for="Dayoff1" class="text-danger"></span>
+
+										<select asp-for="Dayoff1" type="text" id="projectinput3" class="form-control" 
+                                         asp-items="ViewBag.vac">
+										</select>
+									</div>
+								</div>
+									<div class="form-group row">
+									<label asp-for="Dayoff2" class="col-md-3 label-control" for="projectinput4">
+                                        Second Day: </label>
+									<div class="col-md-9">
+				                 		<span asp-validation-for="Dayoff2" class="text-danger"></span>
+										<select asp-for="Dayoff2" type="text" id="projectinput4" class="form-control"
+                                         asp-items="ViewBag.vac">
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="form-actions">
+								<button asp-action="index" class="btn btn-danger mr-1">
+									<i class="icon-trash"></i> Cancel
+								</button>
+								<button type="submit" class="btn btn-success">
+									<i class="icon-note"></i> Save
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</section>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

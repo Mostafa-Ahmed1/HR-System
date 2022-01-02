@@ -1,0 +1,72 @@
+﻿
+@model HR_System.Models.Vacation
+
+@{
+    ViewData["Title"] = "Create";
+
+}
+
+<section id="horizontal-form-layouts" >
+
+	<div class="row" >
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-header">
+					<div class="card-title-wrap bar-success">
+						<h4 class="card-title" id="horz-layout-basic">General Vacation </h4>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="px-3">
+						<form method="post" class="form form-horizontal">
+							<div class="form-body">
+								<h4 class="form-section">
+									General Vacation</h4>
+								<div class="form-group row">
+									<label asp-for="VacationName" class="col-md-3 label-control" for="projectinput1"> Vacation Name: </label>
+									<div class="col-md-9">
+				                 		<span asp-validation-for="VacationName" class="text-danger"></span>
+										<input asp-for="VacationName" type="text" id="projectinput1" class="form-control" name="VacationName" >
+									</div>
+								</div>
+									<div class="form-group row">
+									<label class="col-md-3 label-control" for="projectinput2">Vacation Date: </label>
+									<div class="col-md-9">
+                 	                 		<span asp-validation-for="VacationDate" class="text-danger"></span>
+										<input asp-for="VacationDate" type="date" class="form-control" />
+									</div>
+								</div>
+									
+							<div class="form-actions">
+								<button asp-action="index" class="btn btn-danger mr-1">
+									<i class="icon-trash"></i> Cancel
+								</button>
+								<button type="submit" class="btn btn-success">
+									<i class="icon-note"></i> Save
+								</button>
+							</div>
+						</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

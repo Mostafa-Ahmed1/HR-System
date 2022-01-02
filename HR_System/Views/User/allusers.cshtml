@@ -1,0 +1,60 @@
+﻿@model IEnumerable<HR_System.Models.User>
+                        <table class="table table-striped table-bordered zero-configuration">
+                            @if(ViewBag.groupId == null || ViewBag.groupId.Read)
+                        {
+                                <thead>
+                                    <tr>
+
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        @if (ViewBag.groupId == null || ViewBag.groupId.Update)
+                                        {
+                                            <th>Edit </th>
+                                        }
+                                         @if (ViewBag.groupId == null || ViewBag.groupId.Delete)
+                                        {
+                                            <th>Delete</th>
+                                        }
+
+                                </tr>
+                            </thead>
+                        }
+                            <tbody>
+                                @if (ViewBag.groupId == null || ViewBag.groupId.Read)
+                                {
+
+                                    @foreach (var i in Model)
+                                    {
+                                        <tr class="user">
+
+                                            <td>@i.Username </td>
+                                            <td>@i.Email </td>
+
+                                            
+                                                @if (ViewBag.groupId == null || ViewBag.groupId.Update)
+                                                {
+                                                    <td>
+                                                    <button class="btn btn-success mb-2"> 
+                                                        <a asp-action="edit" asp-controller="User" asp-route-id="@i.UserId"> Edit </a>
+                                                    </button>
+                                                     </td>
+                                                }
+                                           
+                                           
+                                                @if (ViewBag.groupId == null || ViewBag.groupId.Delete)
+                                                {
+                                                     <td>
+                                                    <button class="btn btn-danger mb-2"> 
+                                                        <a asp-action="delete" asp-controller="User" asp-route-id="@i.UserId" onclick="return confirm('Delete @i.Username  .Are You Sure ?')"> Delete </a>
+                                                    </button>
+                                                     </td>
+                                                }
+                                           
+
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                
+                        </table>
+                        

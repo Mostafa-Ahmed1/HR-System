@@ -1,0 +1,33 @@
+﻿@model HR_System.Models.Admin
+
+@{
+    ViewData["Title"] = "profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>profile</h1>
+
+<div>
+    <h4>Admin</h4>
+    <hr />
+     <a asp-action="logout">logout</a>
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AdminName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AdminName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AdminPass)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AdminPass)
+        </dd>
+    </dl>
+</div>
+<div>
+
+    <a asp-action="Edit" asp-route-id="@Model.AdminId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

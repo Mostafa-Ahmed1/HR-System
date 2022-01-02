@@ -1,0 +1,90 @@
+﻿@model IEnumerable<AttDep>
+@*@model List<AttDep>*@
+
+
+<section id="configuration">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-wrap bar-success">
+                        <h4 class="card-title">Attendance and departure request</h4>
+                    </div>
+                </div>
+                <div class="card-body collapse show">
+                    <div class="card-block card-dashboard">
+                        <p class="card-text">
+                            DataTables has most features enabled by default,
+                            so all you need to do to use it with your own ables is to call the construction
+                        </p>
+                        <div class="row">
+                            <div class="col-sm-12 col-md-3">
+                                <div class="dataTables_length" id="DataTables_Table_0_length">
+                                    <label>
+                                        Show
+                                        <select class="form-control form-control-sm" id="show">
+                                            <option value="10" selected="selected">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                            <option value="2">2</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-1"></div>
+                            <div class="col-sm-12 col-md-3">
+                                <div id="DataTables_Table_0_filter" class="dataTables_filter"><label>Search Employee:<input type="text" id="Search" class="form-control form-control-sm"></label></div>
+                            </div>
+                            <div class="col-lg-1"></div>
+                            <div class="col-lg-3">
+                                <button id="addRow" class="btn btn-primary mr-2">
+                                    <i class="ft-plus"></i>&nbsp;
+                                    <a asp-action="Create"> Add Employee Attendance</a>
+                                </button>
+                                <form asp-controller="Attendance" asp-action="excelSubmit" method="post" enctype="multipart/form-data">
+
+                                    <input type="file" name="file" class="btn  mr-2" />
+                                    <button type="submit" class="btn btn-primary mr-2">
+                                        <i class="ft-plus"></i>&nbsp;
+                                        Submit Attendence  File
+                                    </button>
+
+
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="Lists">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+@section scripts{
+
+
+<script type="text/javascript">
+    $(function(){
+        $("#Lists").load("list")
+    })
+    $("#Search").on("keyup",function(){
+        $("#Lists").load("list?show="+$("#show").val()+"&Search="+$("#Search").val())
+    })
+    $("#show").on("change",function(){
+        $("#Lists").load("list?show="+$("#show").val()+"&Search="+$("#Search").val())
+    })
+    //-------------------------------------------
+
+    $("#Lists").on("click","#deleteicon1",function(e){
+        var id=$(this).parent().find('#id').val();
+        $("#exampleModal #id").val(id);
+        $("#exampleModal").modal('show');
+    });
+</script>
+}

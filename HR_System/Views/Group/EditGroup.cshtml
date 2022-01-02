@@ -1,0 +1,114 @@
+﻿@model GroupRelation
+@{
+    ViewData["Title"] = "EditGroup";
+}
+<section id="configuration">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title-wrap bar-success">
+                        <h4 class="card-title">Add New Group </h4>
+                    </div>
+                </div>
+                <div class="card-body collapse show">
+                   <form method="post" asp-controller="Group" asp-action="EditGroup">
+                            <div class="row">
+                                @Html.HiddenFor(n=>n.group.GroupId)
+                                <input type="hidden" asp-for-id="@Model.group.GroupId">
+                                    <div class="col-lg-2">
+
+                                    </div>
+                                        <div class="col-sm-12 col-md-9">
+                                            <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                                                 <span asp-validation-for="@Model.group.GroupName" class="text-danger" style="margin-left:100px">@ViewBag.NameValidation</span>
+                                                <label>
+                                                    Group Name :<input type="text" class="form-control form-control-sm" placeholder="" aria-controls="DataTables_Table_0" style="height: 50px;" asp-for="@Model.group.GroupName">
+                                                </label> 
+                                   <button type="submit" class="btn btn-success mb-2"> 
+                                        Edit
+                                   </button></div></div>
+                               
+                            </div>  
+                        <div>
+                            <span class="text-danger">@ViewBag.MessageError</span>
+                        </div>
+                        <table class="table table-striped table-bordered zero-configuration mt-40 table-group">
+                            <thead>
+                                <tr>
+                                    <th>Module Name</th>
+                                    <th>Show </th>
+                                    <th>Add</th>
+                                    <th>Edit</th>
+                                    <th>delete</th>                                 
+                                </tr>
+                            </thead>
+                            <tbody>      
+                        @for(int i=0;i<ViewBag.PageCrud;i++){
+                               <tr> 
+                                    @Html.HiddenFor(n=>n.pageCruds[i].page.PageId)
+                                    <td>@Html.DisplayFor(n=>n.pageCruds[i].page.PageName)</td>
+
+                                    <td> @Html.CheckBoxFor(n=>n.pageCruds[i].Read ,new{@class="read"+i , id="read"+i , @data_toggle="toggle"})</td>
+                                    <td> @Html.CheckBoxFor(n=>n.pageCruds[i].ADD)</td>
+                                    <td> @Html.CheckBoxFor(n=>n.pageCruds[i].Update , new{ @class="enbleEdit"+i ,  id="enbleEdit"+i }) </td>
+                                    <td> @Html.CheckBoxFor(n=>n.pageCruds[i].Delete , new{ @class="enbleDel"+i ,  id="enbleDel"+i }) </td>
+
+                                 </tr>
+                            
+                                }
+                                                                                                                                                                                                                                                       </yr>
+                            </tbody>
+                
+                        </table>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+@section scripts{
+    <script>
+
+     $(function(){
+          for(let i=0; i<= @ViewBag.PageCrud ; i++) {
+          if($(".read"+i).is(":checked")){
+                $(".read"+i).val(1);
+                $(".enbleEdit"+i).attr('disabled', false);
+                 $(".enbleDel"+i).attr('disabled', false)
+
+                }else{
+                 $(".read"+i).val(0);
+                 $(".enbleEdit"+i).attr('disabled', true);
+
+                 $(".enbleDel"+i).attr('disabled', true);
+                }
+          }
+     })
+
+     for(let i=0; i<= @ViewBag.PageCrud ; i++) {
+        $(".read"+i).on("change",function(event){  
+            if($(this).is(":checked")){
+                $(this).val(1);
+                $(".enbleEdit"+i).attr('disabled', false);
+                 $(".enbleDel"+i).attr('disabled', false)
+
+                }else{
+                 $(this).val(0);
+                 $(".enbleEdit"+i).attr('disabled', true);
+                 $(".enbleEdit"+i).prop('checked', false);
+
+                 $(".enbleDel"+i).attr('disabled', true);
+                 $(".enbleDel"+i).prop('checked', false);
+                }
+            
+             console.log($(".read").is(":checked"))
+        })
+     }
+
+
+        
+    </script>
+}

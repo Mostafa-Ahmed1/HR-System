@@ -1,0 +1,78 @@
+﻿@model HR_System.Models.AttDep
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="configuration">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body collapse show">
+                </div>
+                <div class="card-header">
+                    <div class="card-title-wrap bar-success">
+                        <h4 class="card-title">Request A Form</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="px-3">
+                        <form class="form form-horizontal" method="post">
+                            <div class="form-body">
+                                <div class="form-group row">
+                                    <label class="col-md-3 label-control" for="projectinput7">Employee Name : </label>
+                                    <div class="col-md-9">
+                                        <select asp-for="EmpId" class="form-control" asp-items="ViewBag.EmpId"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-md-3 label-control" for="projectinput9">Date: </label>
+                                    <div class="col-md-9">
+                                        <div class="position-relative has-icon-left">
+                                            <input type="date" id="timesheetinput3" class="form-control" asp-for="Date">
+                                            <span asp-validation-for="Date" class="text-danger"></span>
+                                            <div class="form-control-position">
+                                                <i class="ft-message-square"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" row">
+                                    <div class="col-md-12">
+                                        <div class=" row form-group">
+                                            <label class="col-md-3 label-control">Attendance time: </label>
+                                            <div class="position-relative has-icon-left col-lg-9">
+                                                <input type="time" id="timesheetinput5" class="form-control" asp-for="Attendance">
+                                                <span asp-validation-for="Attendance" class="text-danger"></span>
+                                                <div class="form-control-position">
+                                                    <i class="ft-clock"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class=" row form-group">
+                                            <label class="col-md-3 label-control">Departure time: </label>
+                                            <div class="position-relative has-icon-left col-lg-9">
+                                                <input type="time" id="timesheetinput6" class="form-control" asp-for="Departure">
+                                                <span asp-validation-for="Attendance" class="text-danger"></span>
+                                                <div class="form-control-position">
+                                                    <i class="ft-clock"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <a asp-action="Index" class="btn btn-danger mr-1 icon-trash"> Cancel</a>
+                                    <button type="submit" class="btn btn-success"><i class="icon-note"></i> Save</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

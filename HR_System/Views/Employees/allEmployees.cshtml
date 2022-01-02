@@ -1,0 +1,68 @@
+﻿@model IEnumerable<HR_System.Models.Employee>
+@if (ViewBag.groupId == null || ViewBag.groupId.Read)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.EmpName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FixedSalary)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AttTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DepartureTime)
+                </th>
+                <th>
+
+                    @Html.DisplayNameFor(model => model.Dept)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmpName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FixedSalary)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AttTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DepartureTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Dept.DeptName)
+                    </td>
+                    <td>
+                        @if (ViewBag.groupId == null || ViewBag.groupId.Read)
+                        {
+                            <a asp-action="details" asp-route-id="@item.EmpId" class="btn btn-info">Details</a>
+                        }
+
+                        @if (ViewBag.groupId == null || ViewBag.groupId.Update)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.EmpId" class="btn btn-success">Edit</a>
+                        }
+
+                        @if (ViewBag.groupId == null || ViewBag.groupId.Delete)
+                        {
+                            <a asp-action = "Delete" asp-route-id = "@item.EmpId" class="btn btn-danger" onclick = "return confirm('Are You Sure to delete this employee?')"><i class="icon-trash"></i> Delete</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@*@Html.PagedListPager(Model,n=>  Url.Action("index",new {pageno = n}))
+*@
+

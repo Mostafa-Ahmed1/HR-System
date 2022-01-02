@@ -1,0 +1,49 @@
+﻿@model IEnumerable<HR_System.Models.AttDep>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Employee Name
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                Attendance Time
+            </th>
+            <th>
+                Check-out Time
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Emp.EmpName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Attendance)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Departure)
+                </td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.AttId"
+                   class="btn btn-danger mr-1 icon-trash" id="deleteicon1"
+                   data-target="exampleModal"
+                   data-toggle="modal">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

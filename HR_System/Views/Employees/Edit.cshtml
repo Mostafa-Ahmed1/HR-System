@@ -1,0 +1,86 @@
+﻿@model HR_System.Models.Employee
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EmpId" />
+            <div class="form-group">
+                <label asp-for="EmpName" class="control-label"></label><br />
+                <span asp-validation-for="EmpName" class="text-danger"></span>
+                <input asp-for="EmpName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label><br />
+                <span asp-validation-for="Address" class="text-danger"></span>
+                <input asp-for="Address" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone" class="control-label"></label><br />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+                <input asp-for="Phone" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label><br />
+                <span asp-validation-for="Gender" class="text-danger"></span>
+                <select asp-for="Gender" asp-items="ViewBag.Gender" class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nationality" class="control-label"></label><br />
+                <span asp-validation-for="Nationality" class="text-danger"></span>
+                <input asp-for="Nationality" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Birthdate" class="control-label"></label><br />
+                <span asp-validation-for="Birthdate" class="text-danger"></span>
+                <input type="date" asp-for="Birthdate" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="NationalId" class="control-label"></label><br />
+                <span asp-validation-for="NationalId" class="text-danger"></span>
+                <input asp-for="NationalId" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Hiredate" class="control-label"></label><br />
+                <span asp-validation-for="Hiredate" class="text-danger"></span>
+                <input type="date" asp-for="Hiredate" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="FixedSalary" class="control-label"></label><br />
+                <span asp-validation-for="FixedSalary" class="text-danger"></span>
+                <input asp-for="FixedSalary" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="AttTime" class="control-label"></label><br />
+                <span asp-validation-for="AttTime" class="text-danger"></span>
+                <input type="time" asp-for="AttTime" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DepartureTime" class="control-label"></label><br />
+                <span asp-validation-for="DepartureTime" class="text-danger"></span>
+                <input type="time" asp-for="DepartureTime" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Dept" class="control-label"></label><br />
+                <span asp-validation-for="DeptId" class="text-danger"></span>
+                <select asp-for="DeptId" class="form-control" asp-items="ViewBag.Depts"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index"class="btn btn-outline-dark">Back to List</a>
+</div>
+
