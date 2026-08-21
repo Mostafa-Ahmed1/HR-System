@@ -43,11 +43,11 @@
                                            
                                                 @if (ViewBag.groupId == null || ViewBag.groupId.Delete)
                                                 {
-                                                     <td>
-                                                    <button class="btn btn-danger mb-2"> 
-                                                        <a asp-action="delete" asp-controller="User" asp-route-id="@i.UserId" onclick="return confirm('Delete @i.Username  .Are You Sure ?')"> Delete </a>
-                                                    </button>
-                                                     </td>
+                                                    <td>
+                                                        <form asp-action="delete" asp-controller="User" asp-route-id="@i.UserId" method="post" onsubmit="return confirm('Delete @i.Username. Are you sure?')">
+                                                            <button type="submit" class="btn btn-danger mb-2">Delete</button>
+                                                        </form>
+                                                    </td>
                                                 }
                                            
 
@@ -57,4 +57,3 @@
                             </tbody>
                 
                         </table>
-                        

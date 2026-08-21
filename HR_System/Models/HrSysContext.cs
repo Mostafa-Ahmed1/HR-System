@@ -21,8 +21,6 @@ namespace HR_System.Models
         public virtual DbSet<Setting> Settings { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Vacation> Vacations { get; set; } = null!;
-        public object Employee { get; internal set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
@@ -38,7 +36,7 @@ namespace HR_System.Models
                     .HasColumnName("admin_name");
 
                 entity.Property(e => e.AdminPass)
-                    .HasMaxLength(50)
+                    .HasMaxLength(256)
                     .HasColumnName("admin_pass");
             });
 
@@ -233,7 +231,7 @@ namespace HR_System.Models
                 entity.Property(e => e.GroupId).HasColumnName("group_id");
 
                 entity.Property(e => e.Password)
-                    .HasMaxLength(50)
+                    .HasMaxLength(256)
                     .HasColumnName("password");
 
                 entity.Property(e => e.Username)

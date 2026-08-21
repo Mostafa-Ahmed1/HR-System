@@ -1,7 +1,6 @@
 ﻿using HR_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Session;
 
 namespace HR_System.Controllers
 {

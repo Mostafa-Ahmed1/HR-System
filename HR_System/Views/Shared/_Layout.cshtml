@@ -1,12 +1,7 @@
 ﻿@using HR_System.ViewModels
 @using HR_System.Models
-@using Microsoft.AspNetCore.Http
-@using Newtonsoft.Json
-@using System.Web
 @using System
 @using Microsoft.AspNetCore.Mvc
-
-@*@inject IHttpContextAccessor HttpContextAccessor*@
 
 
 
@@ -64,26 +59,6 @@
                             </a>
                         </li>
                         <li class="has-sub nav-item">
-
-
-
-                            @* <script>
-                                var isFiltered = '@HttpContextAccessor.HttpContext.Session.GetString("cruds")';
-                                console.log(isFiltered);
-                                </script>*@
-
-
-                            @*  @{ #pragma warning disable CS8604 // Possible null reference argument.
-
-                                var test = JsonConvert.DeserializeObject<Crud>( HttpContextAccessor.HttpContext.Session.GetString("cruds"));
-                                #pragma warning restore CS8604 // Possible null reference argument.
-
-                                } *@
-
-
-
-
-
 
 
 
@@ -211,7 +186,9 @@
 
                             }
                         <li class=" nav-item">
-                            <a asp-action="logout" asp-controller="operation"><i class="icon-pin"></i><span data-i18n="" class="menu-title">Log Out </span></a>
+                            <form asp-action="logout" asp-controller="operation" method="post">
+                                <button type="submit" class="btn btn-link"><i class="icon-pin"></i><span data-i18n="" class="menu-title">Log Out</span></button>
+                            </form>
                         </li>
                     </ul>
                 </div>
@@ -236,7 +213,9 @@
                             <div class="arrow_box"><a href="chat.html" class="dropdown-item py-1"><span>Chat</span></a><a href="taskboard.html" class="dropdown-item py-1"><span>TaskBoard</span></a><a href="calendar.html" class="dropdown-item py-1"><span>Calendar</span></a></div>
                         </div>
                     </div>
-                    <a asp-action="logout" asp-controller="operation" class="mx-1 blue-grey darken-4 text-bold-400">Log out</a>
+                    <form asp-action="logout" asp-controller="operation" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-link mx-1 blue-grey darken-4 text-bold-400">Log out</button>
+                    </form>
                 </div>
                 <div class="navbar-container">
                     <div id="navbarSupportedContent" class="collapse navbar-collapse">
@@ -539,28 +518,6 @@
             </div>
         </div>
     </div>
-    <div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" asp-controller="Attendance" asp-action="Delete">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete these Record?</p>
-                        <p class="text-warning"><small>This action Can't be undone</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button id="submitDelete" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
-                        <input type="hidden" id="id" name="id" />
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -592,5 +549,3 @@
 
 </body>
 </html>
-
-

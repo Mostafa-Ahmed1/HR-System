@@ -1,25 +1,31 @@
 ﻿using HR_System.Models;
+using HR_System.Security;
+using HR_System.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR_System.Controllers;
+[Authorize]
 public class UserController : Controller
 {
-    HrSysContext db;
+    private readonly HrSysContext db;
+    private readonly IPasswordMigrationService<User> _passwords;
     public string pagename { get; set; }
-    public UserController(HrSysContext db)
+    public UserController(HrSysContext db, IPasswordMigrationService<User> passwords)
     {
         this.db = db;
+        _passwords = passwords;
         pagename = "Users";
     }
 
     // List Users
     public IActionResult Index()
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
-        var group_id = HttpContext.Session.GetString("groupId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
+        var group_id = User.GetGroupId()?.ToString();
         if (admin_id == null && user_id == null)
         {
             return RedirectToAction("login", "operation");
@@ -36,13 +42,13 @@ public class UserController : Controller
                 ViewBag.PagesRules = Rules;
             }
         }
-        var gId = HttpContext.Session.GetString("groupId");
+        var gId = User.GetGroupId()?.ToString();
         if (gId != null)
         {
             string pagename = "Users";
-            Crud crud = db.CRUDs.Where(n => n.GroupId == int.Parse(gId.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+            Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(gId) && n.Page.PageName == pagename);
             ViewBag.groupId = crud;
-            if (!crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
+            if (crud is null || !crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
         }
 
         return View(db.Users.ToList());
@@ -50,9 +56,9 @@ public class UserController : Controller
 
     public IActionResult allusers(string search, int show)
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
-        var group_id = HttpContext.Session.GetString("groupId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
+        var group_id = User.GetGroupId()?.ToString();
         if (admin_id == null && user_id == null)
         {
             return RedirectToAction("login", "operation");
@@ -67,9 +73,9 @@ public class UserController : Controller
             {
                 List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                 ViewBag.PagesRules = Rules;
-                Crud crud = db.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(group_id) && n.Page.PageName == pagename);
                 ViewBag.groupId = crud;
-                if (!crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
+                if (crud is null || !crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
             }
         }
         var users = db.Users.Include(e => e.Group).ToList();
@@ -91,9 +97,9 @@ public class UserController : Controller
     }
     public IActionResult addUser()
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
-        var group_id = HttpContext.Session.GetString("groupId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
+        var group_id = User.GetGroupId()?.ToString();
         if (admin_id == null && user_id == null)
         {
             return RedirectToAction("login", "operation");
@@ -110,13 +116,13 @@ public class UserController : Controller
                 ViewBag.PagesRules = Rules;
             }
         }
-        var gId = HttpContext.Session.GetString("groupId");
+        var gId = User.GetGroupId()?.ToString();
         if (gId != null)
         {
             string pagename = "Users";
-            Crud crud = db.CRUDs.Where(n => n.GroupId == int.Parse(gId.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+            Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(gId) && n.Page.PageName == pagename);
             ViewBag.groupId = crud;
-            if (!crud.Add) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
+            if (crud is null || !crud.Add) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
         }
         // Send Groups Drop Down List Data 
         ViewBag.groups = new SelectList( db.Groups.ToList() , "GroupId", "GroupName");
@@ -124,8 +130,16 @@ public class UserController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult addUser(User newUser)
     {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.groups = new SelectList(db.Groups.ToList(), "GroupId", "GroupName", newUser.GroupId);
+            return View(newUser);
+        }
+
+        newUser.Password = _passwords.Hash(newUser, newUser.Password);
         db.Users.Add(newUser);
         db.SaveChanges();
         return RedirectToAction( "Index","User");
@@ -135,9 +149,9 @@ public class UserController : Controller
     // Edit User
     public IActionResult edit(int id)
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
-        var group_id = HttpContext.Session.GetString("groupId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
+        var group_id = User.GetGroupId()?.ToString();
         if (admin_id == null && user_id == null)
         {
             return RedirectToAction("login", "operation");
@@ -153,30 +167,55 @@ public class UserController : Controller
                 List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                 ViewBag.PagesRules = Rules;
                 string pagename = "Users";
-                Crud crud = db.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(group_id) && n.Page.PageName == pagename);
                 ViewBag.groupId = crud;
-                if (!crud.Add) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
+                if (crud is null || !crud.Update) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
             }
         }
-        User OldUser =db.Users.Find(id);
+        User? oldUser = db.Users.Find(id);
+        if (oldUser is null)
+        {
+            return NotFound();
+        }
+
         ViewBag.groups = new SelectList(db.Groups.ToList(), "GroupId", "GroupName");
 
-        return View(OldUser);
+        return View(new EditUserViewModel
+        {
+            UserId = oldUser.UserId,
+            Username = oldUser.Username,
+            Email = oldUser.Email,
+            GroupId = oldUser.GroupId
+        });
     }
 
     [HttpPost]
-    public IActionResult edit(User newUser)
+    [ValidateAntiForgeryToken]
+    public IActionResult edit(EditUserViewModel model)
     {
-        User old = db.Users.Find(newUser.UserId);
-        old.Username = newUser.Username;
-        old.Email = newUser.Email;
-        old.GroupId = newUser.GroupId;
+        if (!ModelState.IsValid)
+        {
+            ViewBag.groups = new SelectList(db.Groups.ToList(), "GroupId", "GroupName", model.GroupId);
+            return View(model);
+        }
+
+        User? old = db.Users.Find(model.UserId);
+        if (old is null)
+        {
+            return NotFound();
+        }
+
+        old.Username = model.Username;
+        old.Email = model.Email;
+        old.GroupId = model.GroupId;
         db.SaveChanges();
 
         return RedirectToAction("Index", "User");
     }
     // Delete User
-    public IActionResult delete(int? id)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult delete(int id)
     {
         var x = db.Users.Find(id);
         if (x != null)

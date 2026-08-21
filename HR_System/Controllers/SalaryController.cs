@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
 using HR_System.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HR_System.Controllers;
+[Authorize]
 public class SalaryController : Controller
 {
     HrSysContext db;
@@ -14,8 +17,8 @@ public class SalaryController : Controller
      }
     public IActionResult Index()
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
 
         if (admin_id != null)
         {
@@ -23,7 +26,7 @@ public class SalaryController : Controller
         }
         else if (user_id != null)
         {
-            var b = HttpContext.Session.GetString("groupId");
+            var b = User.GetGroupId()?.ToString();
             if (b != null)
             {
                 List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();

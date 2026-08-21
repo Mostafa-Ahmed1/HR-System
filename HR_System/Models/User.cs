@@ -18,7 +18,8 @@ namespace HR_System.Models
 
         public string Email { get; set; } = null!;
         [Required(ErrorMessage = "* Password Is Required !")]
-        [StringLength(50, MinimumLength = 8, ErrorMessage = "Enter 8  or More Characters")]
+        [StringLength(256, MinimumLength = 8, ErrorMessage = "Enter 8 or More Characters")]
+        [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
         public int? GroupId { get; set; }
 

@@ -1,4 +1,4 @@
-﻿@model User
+﻿@model HR_System.ViewModels.EditUserViewModel
 @{
     ViewData["Title"] = "edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -51,7 +51,7 @@
                                 <div class="form-group row">
 
                                     @* /// Group   Input *@
-                                    <span> @Html.LabelFor(n => n.Group.GroupName , new { @class = "col-md-3   " }) </span>
+                                    <span> @Html.LabelFor(n => n.GroupId , new { @class = "col-md-3   " }) </span>
                                     <span> @Html.DropDownListFor(n => n.GroupId ,(SelectList) ViewBag.groups ,new { @class = "col-md-9 form-control " }) </span>
 
                                 </div>
@@ -81,4 +81,3 @@
         </div>
     </div>
 </section>
-

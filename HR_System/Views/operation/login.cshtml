@@ -1,4 +1,4 @@
-﻿@model HR_System.Models.Admin
+﻿@model HR_System.ViewModels.LoginViewModel
 
 @{
     ViewData["Title"] = "login";
@@ -28,22 +28,25 @@
           
 
             <h2>Hr System Login </h2>
-            <form method="post">
+            <form asp-action="login" asp-controller="operation" method="post">
+              @Html.AntiForgeryToken()
+              <input asp-for="ReturnUrl" type="hidden" />
+              <div asp-validation-summary="ModelOnly" class="text-danger"></div>
               <div class="inputBx">
-                <input asp-for="AdminName" required="required">
+                <input asp-for="Username" autocomplete="username" required="required">
                 <span>Login</span>
               </div>
 
 
               <div class="inputBx password">
-                <input id="password-input" asp-for="AdminPass" type="password" minlength="3" maxlength="12" required="required">
+                <input id="password-input" asp-for="Password" autocomplete="current-password" required="required">
                 <span>Password</span>
                 <a href="#" class="password-control" onclick="return show_hide_password(this);"></a>
               </div>
 
               <p class="text-danger">@ViewBag.status</p>
 
-              <label class="remember"><input type="checkbox" data-val="true" id="remberme" name="remberme" value="true">Remember Me </label>
+              <label class="remember"><input asp-for="RememberMe">Remember Me </label>
               <div class="inputBx">
 
                 <input type="submit" value="login"> 
@@ -58,5 +61,4 @@
         </div>
 
         
-
 

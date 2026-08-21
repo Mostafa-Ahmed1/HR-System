@@ -24,7 +24,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Emp.EmpName)
+                    @(item.Emp?.EmpName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Date)
@@ -36,12 +36,9 @@
                     @Html.DisplayFor(modelItem => item.Departure)
                 </td>
                 <td>
-                    <a asp-action="Delete" asp-route-id="@item.AttId"
-                   class="btn btn-danger mr-1 icon-trash" id="deleteicon1"
-                   data-target="exampleModal"
-                   data-toggle="modal">
-                        Delete
-                    </a>
+                    <form asp-action="Delete" asp-route-id="@item.AttId" method="post" onsubmit="return confirm('Are you sure you want to delete this attendance record?')">
+                        <button type="submit" class="btn btn-danger mr-1 icon-trash">Delete</button>
+                    </form>
                 </td>
             </tr>
         }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
@@ -9,8 +11,16 @@ using ExcelDataReader;
 
 namespace HR_System.Controllers
 {
+    [Authorize]
     public class AttendanceController : Controller
     {
+        private const long MaxAttendanceImportSize = 10 * 1024 * 1024;
+        private static readonly HashSet<string> AllowedImportExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".xls",
+            ".xlsx"
+        };
+
         private HrSysContext db;
         public AttendanceController(HrSysContext db)
         {
@@ -18,8 +28,8 @@ namespace HR_System.Controllers
         }
         public IActionResult Index()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -27,7 +37,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -40,7 +50,7 @@ namespace HR_System.Controllers
 
         public IActionResult list(string Search, int show)
         {
-            var Gid = HttpContext.Session.GetString("groupId");
+            var Gid = User.GetGroupId()?.ToString();
             if (Gid != null)
             {
                 string pagename = "Attendance";
@@ -52,12 +62,17 @@ namespace HR_System.Controllers
             }
             if (Search != null && show != 0)
             {
-                var deps = db.Att_dep.Where(n => n.Emp.EmpName.Contains(Search)).Take(show).ToList();
+                var deps = db.Att_dep
+                    .Where(n => n.Emp != null && n.Emp.EmpName != null && n.Emp.EmpName.Contains(Search))
+                    .Take(show)
+                    .ToList();
                 return PartialView(deps);
             }
             return PartialView(db.Att_dep.ToList().Take(10));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Delete(int? id)
         {
             if (id != null)
@@ -78,8 +93,8 @@ namespace HR_System.Controllers
         // GET: AttDeps/Create
         public IActionResult Create()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -87,7 +102,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -127,60 +142,59 @@ namespace HR_System.Controllers
         }
 
         [HttpPost]
-        public IActionResult excelSubmit(IFormFile file, [FromServices] Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnvironment)
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(MaxAttendanceImportSize)]
+        public IActionResult excelSubmit(IFormFile? file)
         {
-            string fileName = $"{hostingEnvironment.WebRootPath}\\files\\{file.FileName}";
-
-            using (FileStream fileStream = System.IO.File.Create(fileName))
+            if (file is null || file.Length == 0 || file.Length > MaxAttendanceImportSize)
             {
-                file.CopyTo(fileStream);
-                fileStream.Flush();
-
+                return BadRequest("Select a non-empty attendance file no larger than 10 MB.");
             }
 
-            this.GetAttendenceList(file.FileName);
+            var extension = Path.GetExtension(file.FileName);
+            if (!AllowedImportExtensions.Contains(extension))
+            {
+                return BadRequest("Only .xls and .xlsx attendance files are accepted.");
+            }
+
+            using var stream = file.OpenReadStream();
+            GetAttendenceList(stream);
 
             return RedirectToAction("Index");
 
         }
 
-        public void GetAttendenceList(string fname)
+        private void GetAttendenceList(Stream stream)
         {
             List<AttDep> records = new List<AttDep>();
-            var fileName = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\files\"}" + fname;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            using (var stream = System.IO.File.Open(fileName, FileMode.Open, FileAccess.Read))
+            using (var reader = ExcelReaderFactory.CreateReader(stream))
             {
-
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        double code = (double)reader.GetValue(0);
-                        DateTime att = (DateTime)reader.GetValue(2);
-                        DateTime dep = (DateTime)reader.GetValue(3);
+                    double code = (double)reader.GetValue(0);
+                    DateTime att = (DateTime)reader.GetValue(2);
+                    DateTime dep = (DateTime)reader.GetValue(3);
 
 
-                        records.Add(new AttDep()
-                        {
-
-                            EmpId = (int)code,
-                            Date = (DateTime)reader.GetValue(1),
-                            Attendance = att.TimeOfDay,
-                            Departure = dep.TimeOfDay
-                        });
-                    }
-
-                    foreach (var record in records)
+                    records.Add(new AttDep()
                     {
 
-                        db.Att_dep.Add(record);
-
-                    }
-                    db.SaveChanges();
-
+                        EmpId = (int)code,
+                        Date = (DateTime)reader.GetValue(1),
+                        Attendance = att.TimeOfDay,
+                        Departure = dep.TimeOfDay
+                    });
                 }
+
+                foreach (var record in records)
+                {
+
+                    db.Att_dep.Add(record);
+                }
+                db.SaveChanges();
+
             }
         }
 
