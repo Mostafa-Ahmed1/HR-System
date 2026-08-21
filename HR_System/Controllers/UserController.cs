@@ -21,6 +21,7 @@ public class UserController : Controller
     }
 
     // List Users
+    [HrPermission(HrPage.Users, CrudOperation.Read)]
     public IActionResult Index()
     {
         var admin_id = User.GetAdminId()?.ToString();
@@ -48,12 +49,12 @@ public class UserController : Controller
             string pagename = "Users";
             Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(gId) && n.Page.PageName == pagename);
             ViewBag.groupId = crud;
-            if (crud is null || !crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
         }
 
         return View(db.Users.ToList());
     }
 
+    [HrPermission(HrPage.Users, CrudOperation.Read)]
     public IActionResult allusers(string search, int show)
     {
         var admin_id = User.GetAdminId()?.ToString();
@@ -75,7 +76,6 @@ public class UserController : Controller
                 ViewBag.PagesRules = Rules;
                 Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(group_id) && n.Page.PageName == pagename);
                 ViewBag.groupId = crud;
-                if (crud is null || !crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
             }
         }
         var users = db.Users.Include(e => e.Group).ToList();
@@ -95,6 +95,7 @@ public class UserController : Controller
         }
         return PartialView(users.Take(10));    
     }
+    [HrPermission(HrPage.Users, CrudOperation.Add)]
     public IActionResult addUser()
     {
         var admin_id = User.GetAdminId()?.ToString();
@@ -122,7 +123,6 @@ public class UserController : Controller
             string pagename = "Users";
             Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(gId) && n.Page.PageName == pagename);
             ViewBag.groupId = crud;
-            if (crud is null || !crud.Add) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
         }
         // Send Groups Drop Down List Data 
         ViewBag.groups = new SelectList( db.Groups.ToList() , "GroupId", "GroupName");
@@ -131,6 +131,7 @@ public class UserController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HrPermission(HrPage.Users, CrudOperation.Add)]
     public IActionResult addUser(User newUser)
     {
         if (!ModelState.IsValid)
@@ -147,6 +148,7 @@ public class UserController : Controller
 
     
     // Edit User
+    [HrPermission(HrPage.Users, CrudOperation.Update)]
     public IActionResult edit(int id)
     {
         var admin_id = User.GetAdminId()?.ToString();
@@ -169,7 +171,6 @@ public class UserController : Controller
                 string pagename = "Users";
                 Crud? crud = db.CRUDs.FirstOrDefault(n => n.GroupId == int.Parse(group_id) && n.Page.PageName == pagename);
                 ViewBag.groupId = crud;
-                if (crud is null || !crud.Update) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
             }
         }
         User? oldUser = db.Users.Find(id);
@@ -191,6 +192,7 @@ public class UserController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HrPermission(HrPage.Users, CrudOperation.Update)]
     public IActionResult edit(EditUserViewModel model)
     {
         if (!ModelState.IsValid)
@@ -215,6 +217,7 @@ public class UserController : Controller
     // Delete User
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HrPermission(HrPage.Users, CrudOperation.Delete)]
     public IActionResult delete(int id)
     {
         var x = db.Users.Find(id);

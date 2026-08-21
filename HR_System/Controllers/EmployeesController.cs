@@ -23,6 +23,7 @@ namespace HR_System.Controllers
         }
 
         // GET: Employees
+        [HrPermission(HrPage.Employees, CrudOperation.Read)]
         public IActionResult Index()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -44,12 +45,12 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }
             return View();
         }
         // GET: AllEmployees 
+        [HrPermission(HrPage.Employees, CrudOperation.Read)]
         public IActionResult allEmployees(string search, int show)
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -71,7 +72,6 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }
             var employees = _context.Employees.Include(e => e.Dept).ToList();
@@ -92,6 +92,7 @@ namespace HR_System.Controllers
             return PartialView(employees.Take(10));
         }
         // GET: Employees/Details/5
+        [HrPermission(HrPage.Employees, CrudOperation.Read)]
         public IActionResult Details(int? id)
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -113,7 +114,6 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Read) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }           
             if (id == null)
@@ -145,6 +145,7 @@ namespace HR_System.Controllers
             if (Hiredate > companystartdate) return Json(true);
             else return Json(false);
         }
+        [HrPermission(HrPage.Employees, CrudOperation.Add)]
         public IActionResult Create()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -166,7 +167,6 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Add) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }
             ViewBag.Gender = new SelectList(new List<string>() { "Male", "Female" });
@@ -177,6 +177,7 @@ namespace HR_System.Controllers
         // POST: Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Employees, CrudOperation.Add)]
         public IActionResult Create(Employee employee)
         {
             if (employee.DepartureTime < employee.AttTime)
@@ -195,6 +196,7 @@ namespace HR_System.Controllers
             return View(employee);
         }
         // GET: Employees/Edit/5
+        [HrPermission(HrPage.Employees, CrudOperation.Update)]
         public async Task<IActionResult> Edit(int? id)
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -216,7 +218,6 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Update) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }
             if (id == null)
@@ -236,6 +237,7 @@ namespace HR_System.Controllers
         // POST: Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Employees, CrudOperation.Update)]
         public async Task<IActionResult> Edit(int id, Employee employee)
         {
             if (id != employee.EmpId)
@@ -271,6 +273,7 @@ namespace HR_System.Controllers
         // POST: Employees/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Employees, CrudOperation.Delete)]
         public async Task<IActionResult> Delete(int? id)
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -292,7 +295,6 @@ namespace HR_System.Controllers
                     ViewBag.PagesRules = Rules;
                     Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
-                    if (!crud.Delete) return RedirectToAction("HttpStatusCodeHandler", "error", new { StatusCode = 401 });
                 }
             }
             if (id == null)

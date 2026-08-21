@@ -23,8 +23,14 @@ builder.Services
         options.AccessDeniedPath = "/Error/403";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
     });
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<IHrPermissionService, HrPermissionService>();
 builder.Services.AddScoped(typeof(IPasswordMigrationService<>), typeof(PasswordMigrationService<>));
 builder.Services.AddScoped(typeof(Microsoft.AspNetCore.Identity.IPasswordHasher<>), typeof(Microsoft.AspNetCore.Identity.PasswordHasher<>));
 builder.Services.AddSingleton<HrClaimsPrincipalFactory>();
@@ -44,7 +50,16 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error/{statusCode}");
-    app.UseStatusCodePagesWithRedirects("/Error/{0}");
+    app.UseStatusCodePages(context =>
+    {
+        var response = context.HttpContext.Response;
+        if (response.StatusCode != StatusCodes.Status403Forbidden)
+        {
+            response.Redirect($"/Error/{response.StatusCode}");
+        }
+
+        return Task.CompletedTask;
+    });
     app.UseHsts();
 }
 else

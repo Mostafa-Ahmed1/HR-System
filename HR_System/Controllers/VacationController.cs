@@ -13,6 +13,7 @@ namespace HR_System.Controllers
         {
             this.db = db;
         }
+        [HrPermission(HrPage.Vacations, CrudOperation.Add)]
         public IActionResult Index()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -37,6 +38,7 @@ namespace HR_System.Controllers
 
         [HttpPost]
 	[ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Vacations, CrudOperation.Add)]
         public IActionResult Index(Vacation v)
         {
             if (ModelState.IsValid)
@@ -52,6 +54,7 @@ namespace HR_System.Controllers
             }
 
         }
+        [HrPermission(HrPage.Vacations, CrudOperation.Read)]
         public IActionResult display()
         {
             var admin_id = User.GetAdminId()?.ToString();

@@ -15,6 +15,7 @@ public class SalaryController : Controller
             this.db = db;
 
      }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult Index()
     {
         var admin_id = User.GetAdminId()?.ToString();
@@ -53,6 +54,7 @@ public class SalaryController : Controller
         return View();
 
     }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult SalaryTable(int selectedyear,int selectedmonth, string name)
     {
         int month = selectedmonth == 0? 1 : selectedmonth;
@@ -171,6 +173,7 @@ public class SalaryController : Controller
         return PartialView(salary);
 
     }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult invoice(String empName, String departmentName,int fixedSalary,int attendenceDays,int abscenseDays, double BonusHours, double MinusHours, double TotalBonus, double TotalMinus, double NetSalary)
     { 
         ViewBag.empName= empName;

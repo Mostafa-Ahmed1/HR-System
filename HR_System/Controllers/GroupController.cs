@@ -15,6 +15,7 @@ namespace HR_System.Controllers
         {
             this.db = db;
         }
+        [HrPermission(HrPage.Permissions, CrudOperation.Read)]
         public IActionResult Index()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -46,6 +47,7 @@ namespace HR_System.Controllers
         }
 
         //search and show
+        [HrPermission(HrPage.Permissions, CrudOperation.Read)]
         public IActionResult groupSearch(string search,int show)
         {
             var gId = User.GetGroupId()?.ToString();
@@ -78,6 +80,7 @@ namespace HR_System.Controllers
             return PartialView(allgroups);
         }
         //create
+        [HrPermission(HrPage.Permissions, CrudOperation.Add)]
         public IActionResult CreateGroup()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -113,6 +116,7 @@ namespace HR_System.Controllers
         //create action
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Add)]
         public IActionResult CreateGroup(GroupRelation g)
         {
             if (ModelState.IsValid)
@@ -254,6 +258,7 @@ namespace HR_System.Controllers
         }
 
         //edit
+        [HrPermission(HrPage.Permissions, CrudOperation.Update)]
         public IActionResult EditGroup(int id)
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -291,6 +296,7 @@ namespace HR_System.Controllers
         //edit action
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Update)]
         public IActionResult EditGroup(GroupRelation g)
         {
             if (ModelState.IsValid)
@@ -402,6 +408,7 @@ namespace HR_System.Controllers
         //delete
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Delete)]
         public IActionResult Delete(int id)
         {
            Group g=db.Groups.Find(id);

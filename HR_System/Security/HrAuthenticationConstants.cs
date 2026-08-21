@@ -24,6 +24,8 @@ public static class ClaimsPrincipalExtensions
     public static int? GetUserId(this ClaimsPrincipal principal)
         => principal.IsInRole(HrRoles.User) ? principal.GetAccountId() : null;
 
+    // Presentation/backward-compatibility only. Sensitive authorization must load
+    // the user's current GroupId from the database through IHrPermissionService.
     public static int? GetGroupId(this ClaimsPrincipal principal)
         => ParseIntClaim(principal, HrClaimTypes.GroupId);
 

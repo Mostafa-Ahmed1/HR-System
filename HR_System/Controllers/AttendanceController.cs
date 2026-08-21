@@ -26,6 +26,7 @@ namespace HR_System.Controllers
         {
             this.db = db;
         }
+        [HrPermission(HrPage.Attendance, CrudOperation.Read)]
         public IActionResult Index()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -48,13 +49,15 @@ namespace HR_System.Controllers
             return View();
         }
 
+        [HrPermission(HrPage.Attendance, CrudOperation.Read)]
         public IActionResult list(string Search, int show)
         {
             var Gid = User.GetGroupId()?.ToString();
             if (Gid != null)
             {
                 string pagename = "Attendance";
-                ViewBag.groupId = db.CRUDs.Where(n => n.GroupId == int.Parse(Gid) && n.PageId == int.Parse(pagename));
+                ViewBag.groupId = db.CRUDs.FirstOrDefault(
+                    n => n.GroupId == int.Parse(Gid) && n.Page.PageName == pagename);
             }
             if (String.IsNullOrEmpty(Search) && show != 0)
             {
@@ -73,6 +76,7 @@ namespace HR_System.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Attendance, CrudOperation.Delete)]
         public ActionResult Delete(int? id)
         {
             if (id != null)
@@ -91,6 +95,7 @@ namespace HR_System.Controllers
         }
 
         // GET: AttDeps/Create
+        [HrPermission(HrPage.Attendance, CrudOperation.Add)]
         public IActionResult Create()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -117,6 +122,7 @@ namespace HR_System.Controllers
         // POST: AttDeps/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Attendance, CrudOperation.Add)]
         public IActionResult Create([Bind("AttId,EmpId,Date,Attendance,Departure,EmpName")] AttDep attDep)
         {
 
@@ -144,6 +150,7 @@ namespace HR_System.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(MaxAttendanceImportSize)]
+        [HrPermission(HrPage.Attendance, CrudOperation.Add)]
         public IActionResult excelSubmit(IFormFile? file)
         {
             if (file is null || file.Length == 0 || file.Length > MaxAttendanceImportSize)

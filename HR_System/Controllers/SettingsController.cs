@@ -3,6 +3,7 @@ using HR_System.Models;
 using HR_System.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR_System.Controllers
 {
@@ -10,11 +11,14 @@ namespace HR_System.Controllers
     public class SettingsController : Controller
     {
         HrSysContext db;
+        private readonly IHrPermissionService _permissions;
 
-        public SettingsController(HrSysContext db)
+        public SettingsController(HrSysContext db, IHrPermissionService permissions)
         {
             this.db = db;
+            _permissions = permissions;
         }
+        [HrPermission(HrPage.GeneralSettings, CrudOperation.Read)]
         public IActionResult Index()
         {
             var admin_id = User.GetAdminId()?.ToString();
@@ -62,10 +66,19 @@ namespace HR_System.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Index(Setting s)
+        public async Task<IActionResult> Index(Setting s, CancellationToken cancellationToken)
         {
+            var sett = await db.Settings.AsNoTracking().CountAsync(cancellationToken);
+            var operation = sett == 0 ? CrudOperation.Add : CrudOperation.Update;
+            if (!await _permissions.HasPermissionAsync(
+                    User,
+                    HrPage.GeneralSettings,
+                    operation,
+                    cancellationToken))
+            {
+                return Forbid();
+            }
 
-            var sett = db.Settings.ToList().Count;
             if (ModelState.IsValid && sett == 0)
 
             {
