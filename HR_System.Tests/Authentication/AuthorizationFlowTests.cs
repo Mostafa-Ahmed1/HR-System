@@ -36,12 +36,53 @@ public sealed partial class AuthenticationFlowTests
     }
 
     [Fact]
-    public async Task User_with_add_denied_cannot_invoke_users_add_post_directly()
+    public async Task Users_add_does_not_use_attendance_permission_at_the_previous_users_page_id()
     {
         await using var factory = new AuthenticationWebApplicationFactory();
         await SetPermissionAsync(factory, HrPage.Users, CrudOperation.Add, allowed: false);
         using var client = factory.CreateAuthenticationClient();
         await LoginAsUserAsync(client);
+
+        using (var scope = factory.Services.CreateScope())
+        {
+            var database = scope.ServiceProvider.GetRequiredService<HrSysContext>();
+            var enumOrdinalDecoyId = (int)HrPage.Users;
+            database.Pages.Add(new Page
+            {
+                PageId = enumOrdinalDecoyId,
+                PageName = "Enum Ordinal Decoy"
+            });
+            database.CRUDs.Add(new Crud
+            {
+                GroupId = AuthenticationWebApplicationFactory.AllowedGroupId,
+                PageId = enumOrdinalDecoyId,
+                Read = true,
+                Add = true,
+                Update = true,
+                Delete = true
+            });
+            await database.SaveChangesAsync();
+
+            var attendanceAtOldUsersId = await database.Pages.AsNoTracking().SingleAsync(page =>
+                page.PageId == 3);
+            var usersAtUnrelatedId = await database.Pages.AsNoTracking().SingleAsync(page =>
+                page.PageName == HrPage.Users.GetBusinessName());
+            var attendanceAdd = await database.CRUDs.AsNoTracking().SingleAsync(crud =>
+                crud.GroupId == AuthenticationWebApplicationFactory.AllowedGroupId
+                && crud.PageId == attendanceAtOldUsersId.PageId);
+            var usersAdd = await database.CRUDs.AsNoTracking().SingleAsync(crud =>
+                crud.GroupId == AuthenticationWebApplicationFactory.AllowedGroupId
+                && crud.PageId == usersAtUnrelatedId.PageId);
+            var enumOrdinalDecoyAdd = await database.CRUDs.AsNoTracking().SingleAsync(crud =>
+                crud.GroupId == AuthenticationWebApplicationFactory.AllowedGroupId
+                && crud.PageId == enumOrdinalDecoyId);
+
+            Assert.Equal("Attendance", attendanceAtOldUsersId.PageName);
+            Assert.Equal(AuthenticationWebApplicationFactory.UsersPageId, usersAtUnrelatedId.PageId);
+            Assert.True(attendanceAdd.Add);
+            Assert.False(usersAdd.Add);
+            Assert.True(enumOrdinalDecoyAdd.Add);
+        }
 
         var response = await PostUserAsync(client, "/User/addUser", NewUserForm("blocked-add"));
 
@@ -87,11 +128,14 @@ public sealed partial class AuthenticationFlowTests
     }
 
     [Fact]
-    public async Task User_with_add_permission_can_invoke_users_add_post()
+    public async Task Users_authorization_succeeds_when_users_page_id_is_unrelated_to_enum_order()
     {
         await using var factory = new AuthenticationWebApplicationFactory();
         using var client = factory.CreateAuthenticationClient();
         await LoginAsUserAsync(client);
+
+        Assert.Equal(97, AuthenticationWebApplicationFactory.UsersPageId);
+        Assert.NotEqual(3, AuthenticationWebApplicationFactory.UsersPageId);
 
         var response = await PostUserAsync(client, "/User/addUser", NewUserForm("allowed-add"));
 
@@ -128,9 +172,77 @@ public sealed partial class AuthenticationFlowTests
         var setupDatabase = setupScope.ServiceProvider.GetRequiredService<HrSysContext>();
         var rule = await setupDatabase.CRUDs.SingleAsync(crud =>
             crud.GroupId == AuthenticationWebApplicationFactory.AllowedGroupId
-            && crud.PageId == (int)HrPage.Users);
+            && crud.PageId == AuthenticationWebApplicationFactory.UsersPageId);
         setupDatabase.CRUDs.Remove(rule);
         await setupDatabase.SaveChangesAsync();
+
+        using var client = factory.CreateAuthenticationClient();
+        await LoginAsUserAsync(client);
+        var response = await client.GetAsync("/User/allusers");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Missing_expected_page_name_fails_closed()
+    {
+        await using var factory = new AuthenticationWebApplicationFactory();
+        using (var setupScope = factory.Services.CreateScope())
+        {
+            var database = setupScope.ServiceProvider.GetRequiredService<HrSysContext>();
+            var usersPage = await database.Pages.SingleAsync(page =>
+                page.PageName == HrPage.Users.GetBusinessName());
+            usersPage.PageName = "Renamed Users";
+            await database.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateAuthenticationClient();
+        await LoginAsUserAsync(client);
+        var response = await client.GetAsync("/User/allusers");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Duplicate_expected_page_name_fails_closed_even_without_a_second_crud_rule()
+    {
+        await using var factory = new AuthenticationWebApplicationFactory();
+        using (var setupScope = factory.Services.CreateScope())
+        {
+            var database = setupScope.ServiceProvider.GetRequiredService<HrSysContext>();
+            database.Pages.Add(new Page
+            {
+                PageId = 997,
+                PageName = HrPage.Users.GetBusinessName()
+            });
+            await database.SaveChangesAsync();
+        }
+
+        using var client = factory.CreateAuthenticationClient();
+        await LoginAsUserAsync(client);
+        var response = await client.GetAsync("/User/allusers");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Duplicate_crud_rule_for_the_expected_page_fails_closed()
+    {
+        await using var factory = new AuthenticationWebApplicationFactory();
+        using (var setupScope = factory.Services.CreateScope())
+        {
+            var database = setupScope.ServiceProvider.GetRequiredService<HrSysContext>();
+            database.CRUDs.Add(new Crud
+            {
+                GroupId = AuthenticationWebApplicationFactory.AllowedGroupId,
+                PageId = AuthenticationWebApplicationFactory.UsersPageId,
+                Read = true,
+                Add = true,
+                Update = true,
+                Delete = true
+            });
+            await database.SaveChangesAsync();
+        }
 
         using var client = factory.CreateAuthenticationClient();
         await LoginAsUserAsync(client);
@@ -258,7 +370,7 @@ public sealed partial class AuthenticationFlowTests
         var database = scope.ServiceProvider.GetRequiredService<HrSysContext>();
         var rule = await database.CRUDs.SingleAsync(crud =>
             crud.GroupId == AuthenticationWebApplicationFactory.AllowedGroupId
-            && crud.PageId == (int)page);
+            && crud.PageId == AuthenticationWebApplicationFactory.GetPageId(page));
 
         switch (operation)
         {

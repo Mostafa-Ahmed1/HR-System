@@ -14,17 +14,31 @@ public enum CrudOperation
     Delete
 }
 
-// These values mirror the existing PageId mapping used by the navigation and
-// permission-management UI. They are not a new authorization taxonomy.
 public enum HrPage
 {
-    Employees = 1,
-    Permissions = 2,
-    Users = 3,
-    Vacations = 4,
-    GeneralSettings = 5,
-    Attendance = 6,
-    Salary = 7
+    Employees,
+    Permissions,
+    Users,
+    Vacations,
+    GeneralSettings,
+    Attendance,
+    Salary
+}
+
+public static class HrPageExtensions
+{
+    public static string? GetBusinessName(this HrPage page)
+        => page switch
+        {
+            HrPage.Employees => "Employees",
+            HrPage.Permissions => "Permissions",
+            HrPage.Users => "Users",
+            HrPage.Vacations => "Vacations",
+            HrPage.GeneralSettings => "General Settings",
+            HrPage.Attendance => "Attendance",
+            HrPage.Salary => "Salary",
+            _ => null
+        };
 }
 
 public interface IHrPermissionService
@@ -49,6 +63,12 @@ public sealed class HrPermissionService(HrSysContext database) : IHrPermissionSe
             return false;
         }
 
+        var expectedPageName = page.GetBusinessName();
+        if (expectedPageName is null || !Enum.IsDefined(typeof(CrudOperation), operation))
+        {
+            return false;
+        }
+
         var accountId = principal.GetAccountId();
         if (accountId is null)
         {
@@ -68,8 +88,9 @@ public sealed class HrPermissionService(HrSysContext database) : IHrPermissionSe
             return false;
         }
 
-        // Deliberately do not use the GroupId cookie claim here. The joins resolve
-        // the user's current group and permission record on every authorization check.
+        // Deliberately do not use the GroupId cookie claim or a fixed PageId here.
+        // The joins resolve the current user, group, business page, and permission
+        // record on every authorization check.
         var matches = await (
                 from user in database.Users.AsNoTracking()
                 join permissionGroup in database.Groups.AsNoTracking()
@@ -79,10 +100,11 @@ public sealed class HrPermissionService(HrSysContext database) : IHrPermissionSe
                 join permissionPage in database.Pages.AsNoTracking()
                     on crud.PageId equals permissionPage.PageId
                 where user.UserId == accountId.Value
-                    && permissionPage.PageId == (int)page
+                    && permissionPage.PageName == expectedPageName
                 select new
                 {
-                    permissionPage.PageName,
+                    MatchingPageCount = database.Pages.Count(candidatePage =>
+                        candidatePage.PageName == expectedPageName),
                     crud.Read,
                     crud.Add,
                     crud.Update,
@@ -91,8 +113,9 @@ public sealed class HrPermissionService(HrSysContext database) : IHrPermissionSe
             .Take(2)
             .ToListAsync(cancellationToken);
 
-        // Missing, duplicate, or malformed page/CRUD state is ambiguous and must deny.
-        if (matches.Count != 1 || string.IsNullOrWhiteSpace(matches[0].PageName))
+        // Exactly one business Page and one CRUD row must participate. Missing or
+        // duplicate data is ambiguous and therefore denied.
+        if (matches.Count != 1 || matches[0].MatchingPageCount != 1)
         {
             return false;
         }

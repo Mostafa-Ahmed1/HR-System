@@ -23,6 +23,13 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
     public const int AllowedGroupId = 42;
     public const int DeniedGroupId = 43;
     public const int TargetUserId = 8;
+    public const int EmployeesPageId = 101;
+    public const int PermissionsPageId = 207;
+    public const int UsersPageId = 97;
+    public const int VacationsPageId = 422;
+    public const int GeneralSettingsPageId = 509;
+    public const int AttendancePageId = 3;
+    public const int SalaryPageId = 734;
 
     private readonly string _databaseName = $"hr-auth-tests-{Guid.NewGuid():N}";
 
@@ -77,8 +84,8 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
         var pages = Enum.GetValues<HrPage>()
             .Select(page => new Page
             {
-                PageId = (int)page,
-                PageName = GetPageName(page)
+                PageId = GetPageId(page),
+                PageName = page.GetBusinessName()
             })
             .ToArray();
 
@@ -89,7 +96,7 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             new Crud
             {
                 GroupId = AllowedGroupId,
-                PageId = (int)page,
+                PageId = GetPageId(page),
                 Read = true,
                 Add = true,
                 Update = true,
@@ -98,7 +105,7 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             new Crud
             {
                 GroupId = DeniedGroupId,
-                PageId = (int)page,
+                PageId = GetPageId(page),
                 Read = false,
                 Add = false,
                 Update = false,
@@ -118,16 +125,16 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             HandleCookies = handleCookies
         });
 
-    private static string GetPageName(HrPage page)
+    public static int GetPageId(HrPage page)
         => page switch
         {
-            HrPage.Employees => "Employees",
-            HrPage.Permissions => "Permissions",
-            HrPage.Users => "Users",
-            HrPage.Vacations => "Vacations",
-            HrPage.GeneralSettings => "General Settings",
-            HrPage.Attendance => "Attendance",
-            HrPage.Salary => "Salary",
+            HrPage.Employees => EmployeesPageId,
+            HrPage.Permissions => PermissionsPageId,
+            HrPage.Users => UsersPageId,
+            HrPage.Vacations => VacationsPageId,
+            HrPage.GeneralSettings => GeneralSettingsPageId,
+            HrPage.Attendance => AttendancePageId,
+            HrPage.Salary => SalaryPageId,
             _ => throw new ArgumentOutOfRangeException(nameof(page), page, null)
         };
 }
