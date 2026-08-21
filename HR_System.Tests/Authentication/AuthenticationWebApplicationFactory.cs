@@ -20,6 +20,9 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
     public const string LegacyPassword = "LegacyPassword!1";
     public const string HashedUserName = "hashed-user";
     public const string HashedPassword = "HashedPassword!1";
+    public const int AllowedGroupId = 42;
+    public const int DeniedGroupId = 43;
+    public const int TargetUserId = 8;
 
     private readonly string _databaseName = $"hr-auth-tests-{Guid.NewGuid():N}";
 
@@ -56,11 +59,52 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             UserId = 7,
             Username = HashedUserName,
             Email = "hashed-user@example.invalid",
-            GroupId = 42
+            GroupId = AllowedGroupId
         };
         user.Password = new PasswordHasher<User>().HashPassword(user, HashedPassword);
 
-        database.AddRange(admin, user);
+        var targetUser = new User
+        {
+            UserId = TargetUserId,
+            Username = "target-user",
+            Email = "target-user@example.invalid",
+            GroupId = AllowedGroupId
+        };
+        targetUser.Password = new PasswordHasher<User>().HashPassword(targetUser, "TargetPassword!1");
+
+        var allowedGroup = new Group { GroupId = AllowedGroupId, GroupName = "Allowed" };
+        var deniedGroup = new Group { GroupId = DeniedGroupId, GroupName = "Denied" };
+        var pages = Enum.GetValues<HrPage>()
+            .Select(page => new Page
+            {
+                PageId = (int)page,
+                PageName = GetPageName(page)
+            })
+            .ToArray();
+
+        database.AddRange(admin, allowedGroup, deniedGroup, user, targetUser);
+        database.Pages.AddRange(pages);
+        database.CRUDs.AddRange(Enum.GetValues<HrPage>().SelectMany(page => new[]
+        {
+            new Crud
+            {
+                GroupId = AllowedGroupId,
+                PageId = (int)page,
+                Read = true,
+                Add = true,
+                Update = true,
+                Delete = true
+            },
+            new Crud
+            {
+                GroupId = DeniedGroupId,
+                PageId = (int)page,
+                Read = false,
+                Add = false,
+                Update = false,
+                Delete = false
+            }
+        }));
         database.SaveChanges();
 
         return host;
@@ -73,6 +117,19 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             BaseAddress = new Uri("https://localhost"),
             HandleCookies = handleCookies
         });
+
+    private static string GetPageName(HrPage page)
+        => page switch
+        {
+            HrPage.Employees => "Employees",
+            HrPage.Permissions => "Permissions",
+            HrPage.Users => "Users",
+            HrPage.Vacations => "Vacations",
+            HrPage.GeneralSettings => "General Settings",
+            HrPage.Attendance => "Attendance",
+            HrPage.Salary => "Salary",
+            _ => throw new ArgumentOutOfRangeException(nameof(page), page, null)
+        };
 }
 
 [Route("__test/auth")]
