@@ -146,8 +146,14 @@ public sealed class AttendanceWorkbookParser : IAttendanceWorkbookParser
 
             if (reader.FieldCount < AttendanceImportSchema.ColumnCount)
             {
-                errors.Add(physicalRowCount, "Workbook",
-                    $"The row must contain {AttendanceImportSchema.ColumnCount} columns in the documented order.");
+                for (var missingColumn = reader.FieldCount;
+                     missingColumn < AttendanceImportSchema.ColumnCount;
+                     missingColumn++)
+                {
+                    var field = AttendanceImportSchema.FieldNames[missingColumn];
+                    errors.Add(physicalRowCount, field, $"{field} is required.");
+                }
+
                 continue;
             }
 

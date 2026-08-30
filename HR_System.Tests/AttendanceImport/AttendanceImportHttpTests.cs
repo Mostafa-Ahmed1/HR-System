@@ -60,7 +60,7 @@ public sealed partial class AuthenticationFlowTests
         var response = await PostAttendanceAsync(client, workbook, "attendance.xlsx");
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/Attendance", response.Headers.Location?.AbsolutePath);
+        Assert.Equal("/Attendance", response.Headers.Location?.OriginalString);
         using var scope = factory.Services.CreateScope();
         var database = scope.ServiceProvider.GetRequiredService<HrSysContext>();
         Assert.True(await database.Att_dep.AnyAsync(attendance =>
@@ -106,7 +106,8 @@ public sealed partial class AuthenticationFlowTests
             "attendance.xlsx",
             includeAntiforgery: false);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("/Error/400", response.Headers.Location?.OriginalString);
         using var scope = factory.Services.CreateScope();
         var database = scope.ServiceProvider.GetRequiredService<HrSysContext>();
         Assert.Equal(0, await database.Att_dep.CountAsync());
