@@ -1,5 +1,6 @@
 using HR_System.Models;
 using HR_System.Security;
+using HR_System.AttendanceImport;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,9 @@ builder.Services
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IHrPermissionService, HrPermissionService>();
+builder.Services.Configure<AttendanceImportOptions>(_ => { });
+builder.Services.AddScoped<IAttendanceWorkbookParser, AttendanceWorkbookParser>();
+builder.Services.AddScoped<IAttendanceImportService, AttendanceImportService>();
 builder.Services.AddScoped(typeof(IPasswordMigrationService<>), typeof(PasswordMigrationService<>));
 builder.Services.AddScoped(typeof(Microsoft.AspNetCore.Identity.IPasswordHasher<>), typeof(Microsoft.AspNetCore.Identity.PasswordHasher<>));
 builder.Services.AddSingleton<HrClaimsPrincipalFactory>();
