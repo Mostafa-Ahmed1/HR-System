@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
 using HR_System.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HR_System.Controllers;
+[Authorize]
 public class SalaryController : Controller
 {
     HrSysContext db;
@@ -12,10 +15,11 @@ public class SalaryController : Controller
             this.db = db;
 
      }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult Index()
     {
-        var admin_id = HttpContext.Session.GetString("adminId");
-        var user_id = HttpContext.Session.GetString("userId");
+        var admin_id = User.GetAdminId()?.ToString();
+        var user_id = User.GetUserId()?.ToString();
 
         if (admin_id != null)
         {
@@ -23,7 +27,7 @@ public class SalaryController : Controller
         }
         else if (user_id != null)
         {
-            var b = HttpContext.Session.GetString("groupId");
+            var b = User.GetGroupId()?.ToString();
             if (b != null)
             {
                 List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -50,6 +54,7 @@ public class SalaryController : Controller
         return View();
 
     }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult SalaryTable(int selectedyear,int selectedmonth, string name)
     {
         int month = selectedmonth == 0? 1 : selectedmonth;
@@ -168,6 +173,7 @@ public class SalaryController : Controller
         return PartialView(salary);
 
     }
+    [HrPermission(HrPage.Salary, CrudOperation.Read)]
     public IActionResult invoice(String empName, String departmentName,int fixedSalary,int attendenceDays,int abscenseDays, double BonusHours, double MinusHours, double TotalBonus, double TotalMinus, double NetSalary)
     { 
         ViewBag.empName= empName;

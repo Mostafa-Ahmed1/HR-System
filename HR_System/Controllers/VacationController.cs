@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR_System.Controllers
 {
+    [Authorize]
     public class VacationController : Controller
     {
         HrSysContext db;
@@ -10,10 +13,11 @@ namespace HR_System.Controllers
         {
             this.db = db;
         }
+        [HrPermission(HrPage.Vacations, CrudOperation.Add)]
         public IActionResult Index()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -21,7 +25,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -34,6 +38,7 @@ namespace HR_System.Controllers
 
         [HttpPost]
 	[ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Vacations, CrudOperation.Add)]
         public IActionResult Index(Vacation v)
         {
             if (ModelState.IsValid)
@@ -49,10 +54,11 @@ namespace HR_System.Controllers
             }
 
         }
+        [HrPermission(HrPage.Vacations, CrudOperation.Read)]
         public IActionResult display()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -60,7 +66,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();

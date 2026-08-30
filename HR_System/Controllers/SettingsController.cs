@@ -1,21 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace HR_System.Controllers
 {
+    [Authorize]
     public class SettingsController : Controller
     {
         HrSysContext db;
+        private readonly IHrPermissionService _permissions;
 
-        public SettingsController(HrSysContext db)
+        public SettingsController(HrSysContext db, IHrPermissionService permissions)
         {
             this.db = db;
+            _permissions = permissions;
         }
+        [HrPermission(HrPage.GeneralSettings, CrudOperation.Read)]
         public IActionResult Index()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -23,7 +30,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -31,7 +38,7 @@ namespace HR_System.Controllers
 
                 }
             }
-            var gId = HttpContext.Session.GetString("groupId");
+            var gId = User.GetGroupId()?.ToString();
             string pageName = "General Settings";
             if (gId != null)
             {
@@ -58,10 +65,20 @@ namespace HR_System.Controllers
 
         }
         [HttpPost]
-        public IActionResult Index(Setting s)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(Setting s, CancellationToken cancellationToken)
         {
+            var sett = await db.Settings.AsNoTracking().CountAsync(cancellationToken);
+            var operation = sett == 0 ? CrudOperation.Add : CrudOperation.Update;
+            if (!await _permissions.HasPermissionAsync(
+                    User,
+                    HrPage.GeneralSettings,
+                    operation,
+                    cancellationToken))
+            {
+                return Forbid();
+            }
 
-            var sett = db.Settings.ToList().Count;
             if (ModelState.IsValid && sett == 0)
 
             {

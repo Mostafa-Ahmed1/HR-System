@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
+using HR_System.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace HR_System.Controllers
 {
     // ModelState.Remove("group");
+    [Authorize]
     public class GroupController : Controller
     {
         HrSysContext db;
@@ -12,10 +15,11 @@ namespace HR_System.Controllers
         {
             this.db = db;
         }
+        [HrPermission(HrPage.Permissions, CrudOperation.Read)]
         public IActionResult Index()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -23,7 +27,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -31,7 +35,7 @@ namespace HR_System.Controllers
 
                 }
             }
-            var gId = HttpContext.Session.GetString("groupId");
+            var gId = User.GetGroupId()?.ToString();
             string pageName = "Permissions";
             if (gId != null)
             {
@@ -43,9 +47,10 @@ namespace HR_System.Controllers
         }
 
         //search and show
+        [HrPermission(HrPage.Permissions, CrudOperation.Read)]
         public IActionResult groupSearch(string search,int show)
         {
-            var gId = HttpContext.Session.GetString("groupId");
+            var gId = User.GetGroupId()?.ToString();
             string pageName = "Permissions";
             if (gId != null)
             {
@@ -75,10 +80,11 @@ namespace HR_System.Controllers
             return PartialView(allgroups);
         }
         //create
+        [HrPermission(HrPage.Permissions, CrudOperation.Add)]
         public IActionResult CreateGroup()
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -86,7 +92,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -109,6 +115,8 @@ namespace HR_System.Controllers
         }
         //create action
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Add)]
         public IActionResult CreateGroup(GroupRelation g)
         {
             if (ModelState.IsValid)
@@ -250,10 +258,11 @@ namespace HR_System.Controllers
         }
 
         //edit
+        [HrPermission(HrPage.Permissions, CrudOperation.Update)]
         public IActionResult EditGroup(int id)
         {
-            var admin_id = HttpContext.Session.GetString("adminId");
-            var user_id = HttpContext.Session.GetString("userId");
+            var admin_id = User.GetAdminId()?.ToString();
+            var user_id = User.GetUserId()?.ToString();
 
             if (admin_id != null)
             {
@@ -261,7 +270,7 @@ namespace HR_System.Controllers
             }
             else if (user_id != null)
             {
-                var b = HttpContext.Session.GetString("groupId");
+                var b = User.GetGroupId()?.ToString();
                 if (b != null)
                 {
                     List<Crud> Rules = db.CRUDs.Where(n => n.GroupId == int.Parse(b)).ToList();
@@ -286,6 +295,8 @@ namespace HR_System.Controllers
         }
         //edit action
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Update)]
         public IActionResult EditGroup(GroupRelation g)
         {
             if (ModelState.IsValid)
@@ -395,6 +406,9 @@ namespace HR_System.Controllers
         }
 
         //delete
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [HrPermission(HrPage.Permissions, CrudOperation.Delete)]
         public IActionResult Delete(int id)
         {
            Group g=db.Groups.Find(id);
