@@ -31,6 +31,9 @@ jobs:
       - name: Restore
         run: dotnet restore HR_System.sln
 
+      - name: Audit NuGet packages
+        run: dotnet list HR_System.sln package --vulnerable --include-transitive --no-restore
+
       - name: Build
         run: dotnet build HR_System.sln --configuration Release --no-restore
 

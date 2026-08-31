@@ -60,7 +60,7 @@ public sealed partial class AuthenticationFlowTests
         var response = await PostAttendanceAsync(client, workbook, "attendance.xlsx");
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-        Assert.Equal("/Attendance", response.Headers.Location?.OriginalString);
+        Assert.Equal("/Attendance/Index", response.Headers.Location?.OriginalString);
         using var scope = factory.Services.CreateScope();
         var database = scope.ServiceProvider.GetRequiredService<HrSysContext>();
         Assert.True(await database.Att_dep.AnyAsync(attendance =>
