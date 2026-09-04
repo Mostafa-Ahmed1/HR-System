@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
@@ -170,6 +171,7 @@ internal sealed class DevelopmentAdminWebApplicationFactory : WebApplicationFact
 
             services.RemoveAll<HrSysContext>();
             services.RemoveAll<DbContextOptions<HrSysContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<HrSysContext>>();
             services.AddDbContext<HrSysContext>(options =>
                 options
                     .UseInMemoryDatabase(_databaseName)
