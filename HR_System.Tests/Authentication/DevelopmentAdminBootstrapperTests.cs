@@ -124,7 +124,7 @@ public sealed partial class DevelopmentAdminBootstrapperTests
 
         var cookies = login.Headers.GetValuesOrEmpty("Set-Cookie").ToArray();
         Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
-        Assert.Equal("/Dashboard", login.Headers.Location?.OriginalString);
+        Assert.Equal("/Dashboard/Index", login.Headers.Location?.OriginalString);
         Assert.Contains(
             cookies,
             value => value.StartsWith("__Host-HRSystem.Auth=", StringComparison.OrdinalIgnoreCase));
