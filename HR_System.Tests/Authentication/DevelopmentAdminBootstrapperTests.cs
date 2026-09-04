@@ -164,10 +164,16 @@ internal sealed class DevelopmentAdminWebApplicationFactory : WebApplicationFact
         builder.UseEnvironment(Environments.Development);
         builder.ConfigureServices(services =>
         {
+            var inMemoryServices = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+
             services.RemoveAll<HrSysContext>();
             services.RemoveAll<DbContextOptions<HrSysContext>>();
             services.AddDbContext<HrSysContext>(options =>
-                options.UseLazyLoadingProxies().UseInMemoryDatabase(_databaseName));
+                options
+                    .UseInMemoryDatabase(_databaseName)
+                    .UseInternalServiceProvider(inMemoryServices));
         });
     }
 }
