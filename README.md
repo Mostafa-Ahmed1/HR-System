@@ -16,7 +16,7 @@ and authentication foundation forward incrementally.
 ## Prerequisites
 
 - .NET 10 SDK
-- SQL Server for database-backed application workflows
+- Visual Studio on Windows with SQL Server Express LocalDB
 
 No production database is needed to restore, build, or run the automated tests.
 The authentication tests use the EF Core in-memory provider and do not claim SQL
@@ -32,35 +32,42 @@ dotnet build HR_System.sln --configuration Release --no-restore
 dotnet test HR_System.sln --configuration Release --no-build
 ```
 
-## Database configuration
+## Windows local development
 
-The application reads the SQL Server connection from `ConnectionStrings:hrcon`.
-For local development, override it without committing credentials, for example:
+The Development environment overrides `ConnectionStrings:hrcon` with SQL Server
+LocalDB and uses the database `hrSystemCF1`. The default connection in
+`appsettings.json` is unchanged and is not used by this Development override.
+
+From the repository root, apply the existing migrations, trust the ASP.NET Core
+development certificate, and run the project profile:
 
 ```bash
-dotnet user-secrets init --project HR_System/HR_System.csproj
-dotnet user-secrets set --project HR_System/HR_System.csproj \
-  "ConnectionStrings:hrcon" "<local SQL Server connection string>"
+dotnet ef database update --project HR_System/HR_System.csproj --startup-project HR_System/HR_System.csproj
+dotnet dev-certs https --trust
+dotnet run --project HR_System/HR_System.csproj
 ```
 
-Environment variable `ConnectionStrings__hrcon` is also supported by ASP.NET Core
-configuration. Never commit production credentials.
+The `HR_System` profile in `launchSettings.json` expects:
+
+- `https://localhost:7017`
+- `http://localhost:5017`
+
+The URLs printed by the runtime as `Now listening on:` are authoritative if they
+differ from the profile values.
+
+Development startup creates the local `admin` account only when it is missing.
+Its password is hashed before storage, and an existing account is never reset.
+No Development account is bootstrapped in Production.
 
 Migration `20260821130000_ExpandPasswordColumns` expands only `Admin.admin_pass`
 and `User.password` to `nvarchar(256)`. Apply reviewed migrations to an approved
 database before allowing legacy accounts to sign in so a generated password hash
 cannot be truncated.
 
-## Run
-
-```bash
-dotnet run --project HR_System/HR_System.csproj
-```
-
-Use an HTTPS URL from the launch output. The authentication cookie is intentionally
-configured as `Secure`, so browsers do not send it over plain HTTP. Database-free
-startup and the login page can be validated without SQL Server; login and HR data
-pages require a compatible database.
+Use the HTTPS URL from the launch output. The authentication cookie is intentionally
+configured as `Secure`, so browsers do not send it over plain HTTP. Development
+startup and login require the migrated LocalDB database because the Development
+administrator bootstrap checks the `Admin` table during startup.
 
 ## Authentication modernization status
 
