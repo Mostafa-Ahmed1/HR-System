@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using HR_System.AttendanceImport;
 using HR_System.Models;
 using HR_System.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Text;
+using ExcelDataReader;
 
 
 namespace HR_System.Controllers
@@ -11,22 +14,17 @@ namespace HR_System.Controllers
     [Authorize]
     public class AttendanceController : Controller
     {
-        private const int DisplayedImportErrorLimit = 25;
+        private const long MaxAttendanceImportSize = 10 * 1024 * 1024;
         private static readonly HashSet<string> AllowedImportExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".xls",
             ".xlsx"
         };
 
-        private readonly HrSysContext db;
-        private readonly IAttendanceImportService attendanceImportService;
-
-        public AttendanceController(
-            HrSysContext db,
-            IAttendanceImportService attendanceImportService)
+        private HrSysContext db;
+        public AttendanceController(HrSysContext db)
         {
             this.db = db;
-            this.attendanceImportService = attendanceImportService;
         }
         [HrPermission(HrPage.Attendance, CrudOperation.Read)]
         public IActionResult Index()
@@ -151,55 +149,64 @@ namespace HR_System.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [RequestSizeLimit(AttendanceImportDefaults.MaxUploadBytes)]
+        [RequestSizeLimit(MaxAttendanceImportSize)]
         [HrPermission(HrPage.Attendance, CrudOperation.Add)]
-        public async Task<IActionResult> excelSubmit(
-            AttendanceImportRequest request,
-            CancellationToken cancellationToken)
+        public IActionResult excelSubmit(IFormFile? file)
         {
-            var file = request.File;
-            if (file is null || file.Length == 0 || file.Length > AttendanceImportDefaults.MaxUploadBytes)
+            if (file is null || file.Length == 0 || file.Length > MaxAttendanceImportSize)
             {
-                return RenderImportFailure(new AttendanceImportError(
-                    null,
-                    "File",
-                    "Select a non-empty attendance file no larger than 10 MB."));
+                return BadRequest("Select a non-empty attendance file no larger than 10 MB.");
             }
 
             var extension = Path.GetExtension(file.FileName);
             if (!AllowedImportExtensions.Contains(extension))
             {
-                return RenderImportFailure(new AttendanceImportError(
-                    null,
-                    "File",
-                    "Only .xls and .xlsx attendance files are accepted."));
+                return BadRequest("Only .xls and .xlsx attendance files are accepted.");
             }
 
-            await using var stream = file.OpenReadStream();
-            var result = await attendanceImportService.ImportAsync(
-                stream,
-                file.FileName,
-                cancellationToken);
+            using var stream = file.OpenReadStream();
+            GetAttendenceList(stream);
 
-            if (!result.Success)
-            {
-                Response.StatusCode = StatusCodes.Status400BadRequest;
-                ViewBag.ImportErrorCount = result.TotalErrorCount;
-                ViewBag.ImportErrors = result.Errors.Take(DisplayedImportErrorLimit).ToArray();
-                return View("Index");
-            }
-
-            TempData["AttendanceImportSuccess"] =
-                $"Attendance import completed successfully. Imported: {result.ImportedCount} rows.";
             return RedirectToAction("Index");
+
         }
 
-        private IActionResult RenderImportFailure(params AttendanceImportError[] errors)
+        private void GetAttendenceList(Stream stream)
         {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            ViewBag.ImportErrorCount = errors.Length;
-            ViewBag.ImportErrors = errors.Take(DisplayedImportErrorLimit).ToArray();
-            return View("Index");
+            List<AttDep> records = new List<AttDep>();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            using (var reader = ExcelReaderFactory.CreateReader(stream))
+            {
+                while (reader.Read())
+                {
+                    double code = (double)reader.GetValue(0);
+                    DateTime att = (DateTime)reader.GetValue(2);
+                    DateTime dep = (DateTime)reader.GetValue(3);
+
+
+                    records.Add(new AttDep()
+                    {
+
+                        EmpId = (int)code,
+                        Date = (DateTime)reader.GetValue(1),
+                        Attendance = att.TimeOfDay,
+                        Departure = dep.TimeOfDay
+                    });
+                }
+
+                foreach (var record in records)
+                {
+
+                    db.Att_dep.Add(record);
+                }
+                db.SaveChanges();
+
+            }
         }
+
+
+
+
     }
 }

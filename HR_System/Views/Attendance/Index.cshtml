@@ -1,39 +1,8 @@
-﻿@using HR_System.AttendanceImport
-@model IEnumerable<AttDep>
+﻿@model IEnumerable<AttDep>
 @*@model List<AttDep>*@
 
 
 <section id="configuration">
-    @if (TempData["AttendanceImportSuccess"] is string successMessage)
-    {
-        <div class="alert alert-success" role="alert">@successMessage</div>
-    }
-    @if (ViewBag.ImportErrorCount is int importErrorCount)
-    {
-        <div class="alert alert-danger" role="alert">
-            <strong>Import rejected.</strong>
-            @importErrorCount invalid value(s) were found. No attendance records were imported.
-            @if (ViewBag.ImportErrors is IEnumerable<AttendanceImportError> importErrors)
-            {
-                <ul class="mb-0 mt-2">
-                    @foreach (var error in importErrors)
-                    {
-                        <li>
-                            @if (error.RowNumber.HasValue)
-                            {
-                                <span>Row @error.RowNumber — </span>
-                            }
-                            <span>@error.Field: @error.Message</span>
-                        </li>
-                    }
-                </ul>
-            }
-            @if (importErrorCount > 25)
-            {
-                <div class="mt-2">Only the first 25 errors are shown.</div>
-            }
-        </div>
-    }
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
@@ -75,7 +44,7 @@
                                 </button>
                                 <form asp-controller="Attendance" asp-action="excelSubmit" method="post" enctype="multipart/form-data">
 
-                                    <input type="file" name="File" accept=".xls,.xlsx" class="btn  mr-2" />
+                                    <input type="file" name="file" class="btn  mr-2" />
                                     <button type="submit" class="btn btn-primary mr-2">
                                         <i class="ft-plus"></i>&nbsp;
                                         Submit Attendence  File

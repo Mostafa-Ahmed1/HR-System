@@ -30,7 +30,6 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
     public const int GeneralSettingsPageId = 509;
     public const int AttendancePageId = 3;
     public const int SalaryPageId = 734;
-    public const int AttendanceEmployeeId = 15;
 
     private readonly string _databaseName = $"hr-auth-tests-{Guid.NewGuid():N}";
 
@@ -82,21 +81,6 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
 
         var allowedGroup = new Group { GroupId = AllowedGroupId, GroupName = "Allowed" };
         var deniedGroup = new Group { GroupId = DeniedGroupId, GroupName = "Denied" };
-        var attendanceEmployee = new Employee
-        {
-            EmpId = AttendanceEmployeeId,
-            EmpName = "Attendance Employee",
-            Address = "Test Address",
-            Phone = "01000000000",
-            Gender = "Male",
-            Nationality = "Egyptian",
-            Birthdate = new DateTime(1990, 1, 1),
-            NationalId = "12345678901234",
-            Hiredate = new DateTime(2020, 1, 1),
-            FixedSalary = 10_000,
-            AttTime = new TimeSpan(9, 0, 0),
-            DepartureTime = new TimeSpan(17, 0, 0)
-        };
         var pages = Enum.GetValues<HrPage>()
             .Select(page => new Page
             {
@@ -105,7 +89,7 @@ public sealed class AuthenticationWebApplicationFactory : WebApplicationFactory<
             })
             .ToArray();
 
-        database.AddRange(admin, allowedGroup, deniedGroup, user, targetUser, attendanceEmployee);
+        database.AddRange(admin, allowedGroup, deniedGroup, user, targetUser);
         database.Pages.AddRange(pages);
         database.CRUDs.AddRange(Enum.GetValues<HrPage>().SelectMany(page => new[]
         {
