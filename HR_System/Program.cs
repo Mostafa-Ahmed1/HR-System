@@ -33,6 +33,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IHrPermissionService, HrPermissionService>();
 builder.Services.AddScoped(typeof(IPasswordMigrationService<>), typeof(PasswordMigrationService<>));
 builder.Services.AddScoped(typeof(Microsoft.AspNetCore.Identity.IPasswordHasher<>), typeof(Microsoft.AspNetCore.Identity.PasswordHasher<>));
+builder.Services.AddScoped<IDevelopmentAdminBootstrapper, DevelopmentAdminBootstrapper>();
 builder.Services.AddSingleton<HrClaimsPrincipalFactory>();
 builder.Services.AddSingleton(TimeProvider.System);
 
@@ -44,6 +45,13 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var bootstrapper = scope.ServiceProvider.GetRequiredService<IDevelopmentAdminBootstrapper>();
+    await bootstrapper.EnsureCreatedAsync();
+}
 
 
 // Configure the HTTP request pipeline.
