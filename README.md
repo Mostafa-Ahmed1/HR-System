@@ -1,28 +1,73 @@
-# HR System
+# HR System — ASP.NET Core Modernization
 
-HR System is an ASP.NET Core MVC application for employee, attendance, vacation,
-salary, user, group, and permission administration. This modernization keeps the
-existing MVC application and SQL Server schema while moving the supported runtime
-and authentication foundation forward incrementally.
+HR System is an existing ASP.NET Core MVC application for employee, attendance, vacation, salary, user, group, and permission administration. The project is being modernized incrementally: improving authentication, data access, security, and test coverage while retaining the established MVC application, SQL Server schema, and existing behavior wherever possible.
 
-## Technology stack
+## What This Project Demonstrates
 
-- .NET 10 and ASP.NET Core MVC
+- Working within an existing ASP.NET Core application
+- Modernizing focused areas without an unnecessary rewrite
+- Updating authentication while keeping legacy accounts usable
+- Using Entity Framework Core with an established SQL Server schema
+- Applying targeted security improvements to affected workflows
+- Adding automated integration tests around authentication and authorization
+- Preserving current application behavior while making small, reviewable changes
+
+## Technology Stack
+
+- C# and .NET 10
+- ASP.NET Core MVC
 - Entity Framework Core 10 with SQL Server
-- Razor views and the existing Bootstrap/jQuery-based frontend
-- ASP.NET Core cookie authentication and `PasswordHasher<TUser>`
+- Razor views
+- Existing Bootstrap and jQuery frontend
+- ASP.NET Core cookie authentication
+- `PasswordHasher<TUser>`
 - xUnit integration tests
 
-## Prerequisites
+## Selected Improvements
 
-- .NET 10 SDK
-- SQL Server for database-backed application workflows
+The current modernization work focuses on bounded changes that can be reviewed and tested independently:
 
-No production database is needed to restore, build, or run the automated tests.
-The authentication tests use the EF Core in-memory provider and do not claim SQL
-Server behavioral parity.
+- Framework-managed authentication and claims
+- Password-hash migration support for legacy accounts
+- Safer authentication-cookie configuration
+- Targeted antiforgery and destructive-action changes in touched workflows
+- A reviewed EF Core migration for longer password-hash storage
+- Integration coverage for authentication and authorization behavior
 
-## Restore, build, and test
+This is an incremental modernization, not a complete security redesign or architectural rewrite.
+
+## Authentication Modernization
+
+- ASP.NET Core cookie authentication now represents signed-in users with minimal ID, name, role, and optional group claims.
+- Existing plaintext passwords can be upgraded to framework password hashes after a successful legacy comparison.
+- Already-hashed passwords use framework verification and can be rehashed when the framework recommends it.
+- Persistent sign-in is handled through ASP.NET Core authentication properties.
+- Redirects after login accept only local return URLs.
+
+## Security Improvements
+
+- The authentication cookie is configured as HTTP-only, secure, same-site, and host-scoped.
+- Login and logout POST actions use antiforgery validation.
+- Stored password values are not rendered by the touched profile and user-edit views.
+- Touched destructive actions use POST rather than state-changing links.
+
+These changes cover selected workflows only; untouched areas still require their own review.
+
+## Database and EF Core
+
+The application uses Entity Framework Core with SQL Server and the existing `HrSysContext` model.
+
+Migration `20260821130000_ExpandPasswordColumns` expands only `Admin.admin_pass` and `User.password` to `nvarchar(256)`. Apply reviewed migrations to an approved database before allowing legacy accounts to sign in so generated password hashes cannot be truncated.
+
+## Automated Tests
+
+The `HR_System.Tests` project uses xUnit and `Microsoft.AspNetCore.Mvc.Testing` to exercise authentication and authorization flows.
+
+The tests replace SQL Server with the EF Core in-memory provider, so they validate application behavior without claiming SQL Server provider parity. No production database is required to restore, build, or run the automated tests.
+
+## Build and Test
+
+Prerequisite: .NET 10 SDK.
 
 From the repository root:
 
@@ -32,10 +77,19 @@ dotnet build HR_System.sln --configuration Release --no-restore
 dotnet test HR_System.sln --configuration Release --no-build
 ```
 
-## Database configuration
+Run the application with:
 
-The application reads the SQL Server connection from `ConnectionStrings:hrcon`.
-For local development, override it without committing credentials, for example:
+```bash
+dotnet run --project HR_System/HR_System.csproj
+```
+
+Use an HTTPS URL from the launch output. The authentication cookie is configured as `Secure`, so browsers do not send it over plain HTTP. Database-free startup and the login page can be validated without SQL Server; login and HR data pages require a compatible database.
+
+## Local Database Configuration
+
+The application reads its SQL Server connection string from `ConnectionStrings:hrcon`.
+
+For local development, configure it without committing credentials:
 
 ```bash
 dotnet user-secrets init --project HR_System/HR_System.csproj
@@ -43,48 +97,10 @@ dotnet user-secrets set --project HR_System/HR_System.csproj \
   "ConnectionStrings:hrcon" "<local SQL Server connection string>"
 ```
 
-Environment variable `ConnectionStrings__hrcon` is also supported by ASP.NET Core
-configuration. Never commit production credentials.
+The ASP.NET Core environment variable `ConnectionStrings__hrcon` is also supported. Never commit production credentials.
 
-Migration `20260821130000_ExpandPasswordColumns` expands only `Admin.admin_pass`
-and `User.password` to `nvarchar(256)`. Apply reviewed migrations to an approved
-database before allowing legacy accounts to sign in so a generated password hash
-cannot be truncated.
+## Development Approach
 
-## Run
+**Inspect → understand → make the smallest correct change → test → preserve existing behavior.**
 
-```bash
-dotnet run --project HR_System/HR_System.csproj
-```
-
-Use an HTTPS URL from the launch output. The authentication cookie is intentionally
-configured as `Secure`, so browsers do not send it over plain HTTP. Database-free
-startup and the login page can be validated without SQL Server; login and HR data
-pages require a compatible database.
-
-## Authentication modernization status
-
-- Framework cookie authentication replaces the legacy client-controlled `id` and
-  `role` cookies.
-- Authentication identity is represented by minimal ID, name, role, and optional
-  group claims.
-- Existing plaintext passwords are upgraded to framework password hashes after a
-  successful legacy comparison. Already-hashed passwords use framework verification
-  and rehash recommendations.
-- Stored password values are no longer rendered by the profile or user-edit views.
-- Touched state-changing actions use antiforgery protection, and touched destructive
-  links use POST actions.
-
-## Remaining modernization roadmap
-
-- Implementation Brief #02: secure the attendance Excel import end to end, including
-  authorization policy, resilient row validation, resource controls, transaction
-  behavior, and dedicated tests.
-- Complete the CSRF and destructive-GET audit across untouched controller actions.
-- Review and harden the existing group/page/CRUD permission engine.
-- Reduce existing nullable warnings and continue targeted async EF Core conversion.
-- Add SQL Server integration coverage for provider-specific computed SQL and critical
-  database workflows.
-
-This remains an incremental modernization; it is not a Clean Architecture,
-microservices, CQRS, frontend, API, or database redesign.
+The goal is controlled modernization: improve one well-defined area at a time, verify the result, and avoid expanding scope into an unnecessary rewrite.
