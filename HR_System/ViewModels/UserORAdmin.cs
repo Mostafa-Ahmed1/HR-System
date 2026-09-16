@@ -1,8 +1,8 @@
-﻿using HR_System.Models;
+using HR_System.Models;
 namespace HR_System.ViewModels;
 public class UserORAdmin
 {
 
-   public User user{ get; set; }
-    public Admin admin { get; set; }
+   public User user{ get; set; } = null!;
+    public Admin admin { get; set; } = null!;
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
 using HR_System.Security;
 using HR_System.ViewModels;
@@ -98,8 +98,8 @@ public class SalaryController : Controller
 
 
         // Get Plus and Minus Work Hours
-        decimal plusPerHour = (decimal)db.Settings.Select(r => r.PlusPerhour).FirstOrDefault() ;
-        decimal minusPerHour = (decimal)db.Settings.Select(r => r.MinusPerhour).FirstOrDefault();
+        decimal plusPerHour = (decimal)db.Settings.Select(r => r.PlusPerhour).FirstOrDefault().GetValueOrDefault();
+        decimal minusPerHour = (decimal)db.Settings.Select(r => r.MinusPerhour).FirstOrDefault().GetValueOrDefault();
 
         foreach (var emp in employees)
         {
@@ -155,7 +155,7 @@ public class SalaryController : Controller
                 fixedSalary = emp.FixedSalary,
                 employeeName = emp.EmpName,
 
-                departmentName = emp.Dept.DeptName ,
+                departmentName = emp.Dept?.DeptName ?? string.Empty,
                 attendenceDays = AttendanceDays,
                 abscenseDays = AbscenceDays,
                 BonusHours = Math.Floor(BonusHours),

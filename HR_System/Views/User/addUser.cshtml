@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Add New User";
 
 }
@@ -61,7 +61,7 @@
                                 <div class="form-group row">
 
                                     @* /// Group   Input *@
-                                    <div class="col-md-3 label-control text-center"> @Html.LabelFor(n => n.Group.GroupName ) </div>
+                                    <div class="col-md-3 label-control text-center"> @Html.LabelFor(n => n.Group!.GroupName ) </div>
                                     <div class="col-md-9">
                                         <div>@Html.DropDownListFor(n => n.GroupId ,(SelectList) ViewBag.groups ,new { @class = " form-control" }) </div>
                                     </div>

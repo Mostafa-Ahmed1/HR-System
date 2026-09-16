@@ -43,7 +43,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }
@@ -70,7 +70,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }
@@ -112,7 +112,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }           
@@ -165,7 +165,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }
@@ -216,7 +216,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }
@@ -293,7 +293,7 @@ namespace HR_System.Controllers
                 {
                     List<Crud> Rules = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id)).ToList();
                     ViewBag.PagesRules = Rules;
-                    Crud crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
+                    Crud? crud = _context.CRUDs.Where(n => n.GroupId == int.Parse(group_id.ToString()) && n.Page.PageName == pagename).FirstOrDefault();
                     ViewBag.groupId = crud;
                 }
             }

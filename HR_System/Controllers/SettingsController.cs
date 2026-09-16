@@ -90,7 +90,7 @@ namespace HR_System.Controllers
             else if (ModelState.IsValid && sett > 0)
             {
 
-                Setting se = db.Settings.Find(s.SettingId);
+                Setting? se = db.Settings.Find(s.SettingId);
                 if (se != null)
                 {
 

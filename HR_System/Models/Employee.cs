@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace HR_System.Models
@@ -26,7 +26,7 @@ namespace HR_System.Models
         [Required(ErrorMessage = "*")]
         [RegularExpression("^01[0-2]{1}[0-9]{8}", ErrorMessage ="Please Insert a valid Phone Number")]
         //[Phone]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = null!;
 
 
         public string Gender { get; set; } = null!;

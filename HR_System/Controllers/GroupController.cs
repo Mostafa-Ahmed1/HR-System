@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using HR_System.Models;
 using HR_System.Security;
 using Microsoft.AspNetCore.Authorization;
@@ -287,7 +287,7 @@ namespace HR_System.Controllers
             }
             GroupRelation groupRelation = new GroupRelation()
             {
-                group = db.Groups.Where(n=>n.GroupId==id).FirstOrDefault(),
+                group = db.Groups.Where(n=>n.GroupId==id).FirstOrDefault()!,
                 pageCruds=pageCruds
             };
             ViewBag.PageCrud = groupRelation.pageCruds.Count;
@@ -301,7 +301,11 @@ namespace HR_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                Group group=db.Groups.Where(n=>n.GroupId==g.group.GroupId).FirstOrDefault();
+                Group? group=db.Groups.Where(n=>n.GroupId==g.group.GroupId).FirstOrDefault();
+                if (group == null)
+                {
+                    return NotFound();
+                }
 
                 //solve duplicated group name
                 List<Group> nameValid = db.Groups.ToList();
@@ -375,7 +379,7 @@ namespace HR_System.Controllers
                     }
                     GroupRelation groupRelationErorr = new GroupRelation()
                     {
-                        group = db.Groups.Where(n => n.GroupId == g.group.GroupId).FirstOrDefault(),
+                        group = db.Groups.Where(n => n.GroupId == g.group.GroupId).FirstOrDefault()!,
                         pageCruds = pageCrudsErorr
                     };
                     ViewBag.PageCrud = groupRelationErorr.pageCruds.Count;
@@ -398,7 +402,7 @@ namespace HR_System.Controllers
             }
             GroupRelation groupRelation = new GroupRelation()
             {
-                group = db.Groups.Where(n => n.GroupId == g.group.GroupId).FirstOrDefault(),
+                group = db.Groups.Where(n => n.GroupId == g.group.GroupId).FirstOrDefault()!,
                 pageCruds = pageCruds
             };
             ViewBag.PageCrud = groupRelation.pageCruds.Count;
@@ -411,7 +415,7 @@ namespace HR_System.Controllers
         [HrPermission(HrPage.Permissions, CrudOperation.Delete)]
         public IActionResult Delete(int id)
         {
-           Group g=db.Groups.Find(id);
+           Group? g=db.Groups.Find(id);
            List<Crud> c=db.CRUDs.Where(n=>n.GroupId==id).ToList();
             if (c != null) 
             {

@@ -1,9 +1,9 @@
-﻿using HR_System.Models;
+using HR_System.Models;
 namespace HR_System.ViewModels;
 public class SalaryVM
 {
-    public string employeeName { get; set; }
-    public string departmentName { get; set; }
+    public string employeeName { get; set; } = null!;
+    public string departmentName { get; set; } = null!;
     public int fixedSalary { get; set; }
    
     public int attendenceDays {  get; set; }

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HR_System.Models.Employee>
+@model IEnumerable<HR_System.Models.Employee>
 @if (ViewBag.groupId == null || ViewBag.groupId.Read)
 {
     <table class="table table-striped">
@@ -40,7 +40,7 @@
                         @Html.DisplayFor(modelItem => item.DepartureTime)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Dept.DeptName)
+                        @Html.DisplayFor(modelItem => item.Dept!.DeptName)
                     </td>
                     <td>
                         @if (ViewBag.groupId == null || ViewBag.groupId.Read)

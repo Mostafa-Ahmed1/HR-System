@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HR_System.Models.AttDep>
+@model IEnumerable<HR_System.Models.AttDep>
 
 @{
     ViewData["Title"] = "Index";
@@ -162,7 +162,7 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td class="text-truncate">@item.Emp.EmpName </td>
+                                        <td class="text-truncate">@item.Emp?.EmpName </td>
                                         <td class="text-truncate">@item.Date.ToShortDateString()</td>
                                         <td class="text-truncate">@item.Attendance AM </td>
                                         <td class="text-truncate">@item.Departure PM </td>
