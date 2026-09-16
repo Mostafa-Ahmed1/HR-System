@@ -42,10 +42,10 @@ public sealed class SneatUiFixture : IAsyncLifetime
 
     public void SkipIfUnavailable(bool authenticated = false)
     {
-        if (string.IsNullOrWhiteSpace(BaseUrl)) throw new SkipException("Set HR_UI_BASE_URL to run browser UI tests.");
+        if (string.IsNullOrWhiteSpace(BaseUrl)) throw SkipException.ForSkip("Set HR_UI_BASE_URL to run browser UI tests.");
         if (authenticated && (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password)))
-            throw new SkipException("Set HR_UI_USERNAME and HR_UI_PASSWORD to run authenticated UI tests.");
-        if (SetupFailure is not null) throw new SkipException(SetupFailure);
+            throw SkipException.ForSkip("Set HR_UI_USERNAME and HR_UI_PASSWORD to run authenticated UI tests.");
+        if (SetupFailure is not null) throw SkipException.ForSkip(SetupFailure);
     }
 }
 
@@ -174,4 +174,3 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         throw new FileNotFoundException(relative);
     }
 }
-
