@@ -1,6 +1,5 @@
 using Microsoft.Playwright;
 using Xunit;
-using Xunit.Sdk;
 
 namespace HR_System.UiTests;
 
@@ -35,17 +34,24 @@ public sealed class SneatUiFixture : IAsyncLifetime
 
     public async Task<IPage> NewPageAsync(ViewportSize? viewport = null)
     {
-        SkipIfUnavailable();
+        if (Browser is null) throw new InvalidOperationException("Playwright is not available.");
         var page = await Browser!.NewPageAsync(new BrowserNewPageOptions { ViewportSize = viewport });
         return page;
     }
 
-    public void SkipIfUnavailable(bool authenticated = false)
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public sealed class UiFactAttribute : FactAttribute
+{
+    public UiFactAttribute(bool requiresAuthentication = false)
     {
-        if (string.IsNullOrWhiteSpace(BaseUrl)) throw SkipException.ForSkip("Set HR_UI_BASE_URL to run browser UI tests.");
-        if (authenticated && (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password)))
-            throw SkipException.ForSkip("Set HR_UI_USERNAME and HR_UI_PASSWORD to run authenticated UI tests.");
-        if (SetupFailure is not null) throw SkipException.ForSkip(SetupFailure);
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HR_UI_BASE_URL")))
+            Skip = "Set HR_UI_BASE_URL to run browser UI tests.";
+        else if (requiresAuthentication &&
+                 (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HR_UI_USERNAME")) ||
+                  string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("HR_UI_PASSWORD"))))
+            Skip = "Set HR_UI_USERNAME and HR_UI_PASSWORD to run authenticated UI tests.";
     }
 }
 
@@ -54,7 +60,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
     private readonly SneatUiFixture fixture;
     public SneatUiTests(SneatUiFixture fixture) => this.fixture = fixture;
 
-    [Fact]
+    [UiFact]
     public async Task LoginPage_LoadsWithoutCriticalErrorsOrOverflow()
     {
         var page = await fixture.NewPageAsync(new ViewportSize { Width = 1366, Height = 768 });
@@ -76,7 +82,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         Assert.Contains("PageName", source, StringComparison.Ordinal);
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task AuthenticatedDashboard_HasSneatShellAndInitializedMenu()
     {
         var page = await LoginAsync(new ViewportSize { Width = 1366, Height = 768 });
@@ -92,7 +98,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         Assert.Equal(true, await page.EvaluateAsync<bool>("() => !!window.Helpers.mainMenu"));
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task SneatCriticalAssets_LoadWithoutErrorsOrDuplicates()
     {
         var page = await LoginAsync();
@@ -104,7 +110,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         Assert.Equal(1, await page.Locator("script[src*='bootstrap']").CountAsync());
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task Desktop_HasNoHorizontalOverflowAndOnePostLogout()
     {
         var page = await LoginAsync(new ViewportSize { Width = 1366, Height = 768 });
@@ -115,7 +121,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         foreach (var card in cards) Assert.True((await card.BoundingBoxAsync())?.Width > 0);
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task Mobile_Menu_OpensClosesAndHasNoOverflow()
     {
         var page = await LoginAsync(new ViewportSize { Width = 390, Height = 844 });
@@ -128,7 +134,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         await page.Keyboard.PressAsync("Escape");
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task VisibleNavigationItems_LoadInsideSneatShell()
     {
         var page = await LoginAsync();
@@ -141,7 +147,7 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
         }
     }
 
-    [Fact]
+    [UiFact(true)]
     public async Task Logout_UsesPostForm()
     {
         var page = await LoginAsync();
@@ -152,7 +158,6 @@ public sealed class SneatUiTests : IClassFixture<SneatUiFixture>
 
     private async Task<IPage> LoginAsync(ViewportSize? viewport = null)
     {
-        fixture.SkipIfUnavailable(authenticated: true);
         var page = await fixture.NewPageAsync(viewport);
         await page.GotoAsync(fixture.BaseUrl!, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
         await page.Locator("input[name='Username'], input[name='username'], input[type='text']").First.FillAsync(fixture.Username!);
