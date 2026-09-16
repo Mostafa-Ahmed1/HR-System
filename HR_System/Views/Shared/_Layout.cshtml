@@ -1,4 +1,4 @@
-@using System
+﻿@using System
 @using HR_System.ViewModels
 
 @{
@@ -8,6 +8,15 @@
     var userName = User.Identity?.Name;
     var userInitial = string.IsNullOrWhiteSpace(userName) ? "U" : userName[..1].ToUpperInvariant();
     string Active(string name) => controller.Equals(name, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+    bool CanRead(string pageName)
+    {
+        if (ViewBag.PagesRules == null) return true;
+        foreach (var rule in ViewBag.PagesRules)
+        {
+            if (rule.Page?.PageName == pageName && rule.Read) return true;
+        }
+        return false;
+    }
 }
 
 <!DOCTYPE html>
@@ -16,10 +25,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@pageTitle - HR System</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/sneat/vendor/css/core.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/fonts/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="~/HR_System.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/app.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/hr-sneat-overrides.css" asp-append-version="true" />
     <link rel="shortcut icon" type="image/png" href="~/img/logo.png" />
@@ -39,29 +48,13 @@
                 <ul class="menu-inner py-1">
                     <li class="menu-header small text-uppercase"><span class="menu-header-text">Workspace</span></li>
                     <li class="menu-item @Active("Dashboard")"><a asp-controller="Dashboard" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-th-large" aria-hidden="true"></i><div>Dashboard</div></a></li>
-                    @if (ViewBag.PagesRules == null)
-                    {
-                        <li class="menu-item @Active("Employees")"><a asp-controller="Employees" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-users" aria-hidden="true"></i><div>Employees</div></a></li>
-                        <li class="menu-item @Active("Attendance")"><a asp-controller="Attendance" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-clock-o" aria-hidden="true"></i><div>Attendance</div></a></li>
-                        <li class="menu-item @Active("Vacation")"><a asp-controller="Vacation" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-calendar" aria-hidden="true"></i><div>Vacations</div></a></li>
-                        <li class="menu-item @Active("Salary")"><a asp-controller="Salary" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-bar-chart" aria-hidden="true"></i><div>Salary report</div></a></li>
-                        <li class="menu-item @Active("User")"><a asp-controller="User" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-user" aria-hidden="true"></i><div>Users</div></a></li>
-                        <li class="menu-item @Active("Group")"><a asp-controller="Group" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-sliders" aria-hidden="true"></i><div>Permissions</div></a></li>
-                        <li class="menu-item @Active("Settings")"><a asp-controller="Settings" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-cog" aria-hidden="true"></i><div>General settings</div></a></li>
-                    }
-                    else
-                    {
-                        @foreach (var rule in ViewBag.PagesRules)
-                        {
-                            @if (rule.PageId == 1 && rule.Read) { <li class="menu-item @Active("Employees")"><a asp-controller="Employees" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-users" aria-hidden="true"></i><div>Employees</div></a></li> }
-                            @if (rule.PageId == 2 && rule.Read) { <li class="menu-item @Active("Group")"><a asp-controller="Group" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-sliders" aria-hidden="true"></i><div>Permissions</div></a></li> }
-                            @if (rule.PageId == 3 && rule.Read) { <li class="menu-item @Active("User")"><a asp-controller="User" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-user" aria-hidden="true"></i><div>Users</div></a></li> }
-                            @if (rule.PageId == 4 && rule.Read) { <li class="menu-item @Active("Vacation")"><a asp-controller="Vacation" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-calendar" aria-hidden="true"></i><div>Vacations</div></a></li> }
-                            @if (rule.PageId == 5 && rule.Read) { <li class="menu-item @Active("Settings")"><a asp-controller="Settings" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-cog" aria-hidden="true"></i><div>General settings</div></a></li> }
-                            @if (rule.PageId == 6 && rule.Read) { <li class="menu-item @Active("Attendance")"><a asp-controller="Attendance" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-clock-o" aria-hidden="true"></i><div>Attendance</div></a></li> }
-                            @if (rule.PageId == 7 && rule.Read) { <li class="menu-item @Active("Salary")"><a asp-controller="Salary" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-bar-chart" aria-hidden="true"></i><div>Salary report</div></a></li> }
-                        }
-                    }
+                    @if (CanRead("Employees")) { <li class="menu-item @Active("Employees")"><a asp-controller="Employees" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-users" aria-hidden="true"></i><div>Employees</div></a></li> }
+                    @if (CanRead("Attendance")) { <li class="menu-item @Active("Attendance")"><a asp-controller="Attendance" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-clock-o" aria-hidden="true"></i><div>Attendance</div></a></li> }
+                    @if (CanRead("Vacations")) { <li class="menu-item @Active("Vacation")"><a asp-controller="Vacation" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-calendar" aria-hidden="true"></i><div>Vacations</div></a></li> }
+                    @if (CanRead("Salary")) { <li class="menu-item @Active("Salary")"><a asp-controller="Salary" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-bar-chart" aria-hidden="true"></i><div>Salary report</div></a></li> }
+                    @if (CanRead("Users")) { <li class="menu-item @Active("User")"><a asp-controller="User" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-user" aria-hidden="true"></i><div>Users</div></a></li> }
+                    @if (CanRead("Permissions")) { <li class="menu-item @Active("Group")"><a asp-controller="Group" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-sliders" aria-hidden="true"></i><div>Permissions</div></a></li> }
+                    @if (CanRead("General Settings")) { <li class="menu-item @Active("Settings")"><a asp-controller="Settings" asp-action="Index" class="menu-link"><i class="menu-icon fa fa-cog" aria-hidden="true"></i><div>General settings</div></a></li> }
                 </ul>
                 <div class="layout-menu-footer"><span class="status-dot"></span>Workspace online</div>
             </aside>
@@ -85,8 +78,12 @@
         </div>
         <div class="layout-overlay layout-menu-toggle" data-sneat-menu-toggle></div>
     </div>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/sneat/vendor/libs/jquery/jquery.js" asp-append-version="true"></script>
+    <script src="~/sneat/vendor/libs/popper/popper.js" asp-append-version="true"></script>
+    <script src="~/sneat/vendor/js/bootstrap.js" asp-append-version="true"></script>
+    <script src="~/sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.js" asp-append-version="true"></script>
+    <script src="~/sneat/vendor/js/helpers.js" asp-append-version="true"></script>
+    <script src="~/sneat/vendor/js/menu.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
     @await RenderSectionAsync("Scripts", required: false)
