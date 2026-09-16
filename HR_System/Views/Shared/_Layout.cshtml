@@ -20,7 +20,12 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      dir="ltr"
+      data-skin="default"
+      data-bs-theme="light"
+      data-assets-path="@(Context.Request.PathBase.ToString() + "/")"
+      data-template="vertical-menu-template-free">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,6 +37,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/hr-sneat-overrides.css" asp-append-version="true" />
     <link rel="shortcut icon" type="image/png" href="~/img/logo.png" />
+
+    <script src="~/sneat/vendor/js/helpers.js" asp-append-version="true"></script>
+    <script src="~/sneat/js/config.js" asp-append-version="true"></script>
 </head>
 <body>
     <div class="layout-wrapper layout-content-navbar">
@@ -72,7 +80,12 @@
                         <nav class="breadcrumb-shell" aria-label="Breadcrumb"><span>Workspace</span><i class="fa fa-angle-right" aria-hidden="true"></i><strong>@pageTitle</strong></nav>
                         @RenderBody()
                     </div>
-                    <footer class="content-footer footer bg-footer-theme"><div class="container-xxl d-flex flex-wrap justify-content-between py-2"><span>HR System</span><span class="text-muted">Internal administration</span></div></footer>
+                    <footer class="content-footer footer bg-footer-theme">
+                        <div class="container-xxl d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                            <span>HR System · Internal administration</span>
+                            <span class="text-muted">UI by <a href="https://themeselection.com/" target="_blank" rel="noopener noreferrer">ThemeSelection</a></span>
+                        </div>
+                    </footer>
                 </main>
             </div>
         </div>
@@ -82,11 +95,10 @@
     <script src="~/sneat/vendor/libs/popper/popper.js" asp-append-version="true"></script>
     <script src="~/sneat/vendor/js/bootstrap.js" asp-append-version="true"></script>
     <script src="~/sneat/vendor/libs/perfect-scrollbar/perfect-scrollbar.js" asp-append-version="true"></script>
-    <script src="~/sneat/vendor/js/helpers.js" asp-append-version="true"></script>
     <script src="~/sneat/vendor/js/menu.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/sneat/js/main.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
