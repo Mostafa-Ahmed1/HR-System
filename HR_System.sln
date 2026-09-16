@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HR_System", "HR_System\HR_S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HR_System.Tests", "HR_System.Tests\HR_System.Tests.csproj", "{7D00B43C-6BA7-4D5E-A46C-D9635630AEB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HR_System.UiTests", "HR_System.UiTests\HR_System.UiTests.csproj", "{A2F4D920-2E0B-4E58-9F5D-6C5D8C5B8E21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7D00B43C-6BA7-4D5E-A46C-D9635630AEB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D00B43C-6BA7-4D5E-A46C-D9635630AEB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D00B43C-6BA7-4D5E-A46C-D9635630AEB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2F4D920-2E0B-4E58-9F5D-6C5D8C5B8E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2F4D920-2E0B-4E58-9F5D-6C5D8C5B8E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2F4D920-2E0B-4E58-9F5D-6C5D8C5B8E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2F4D920-2E0B-4E58-9F5D-6C5D8C5B8E21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -29,3 +35,4 @@ Global
 		SolutionGuid = {FC2E6DBF-8CD6-4CA8-BE45-73FBD37AE870}
 	EndGlobalSection
 EndGlobal
+
