@@ -1,0 +1,23 @@
+/* HR-specific presentation adjustments on top of Sneat's generated core.css. */
+:root { --hr-primary: #696cff; --hr-border: #e7e7ef; }
+body { overflow-x: hidden; }
+.app-brand-logo img { width: 32px; height: 32px; object-fit: contain; }
+.app-brand-text { text-transform: none; letter-spacing: .02em; }
+.layout-menu-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--hr-border); color: #8592a3; font-size: .78rem; }
+.status-dot { display: inline-block; width: 8px; height: 8px; margin-right: .45rem; border-radius: 50%; background: #71dd37; }
+.page-context-title { font-size: 1.15rem; font-weight: 700; }
+.user-summary { display: flex; align-items: center; gap: .55rem; }
+.user-summary strong, .user-summary small { display: block; line-height: 1.2; }
+.user-summary small { margin-top: .2rem; color: #8592a3; font-size: .72rem; }
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: #e7e7ff; color: var(--hr-primary); font-weight: 700; }
+.breadcrumb-shell { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.25rem; color: #8592a3; font-size: .8rem; }
+.breadcrumb-shell strong { color: #384152; }
+.kpi-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.6rem; height: 2.6rem; border-radius: .5rem; font-size: 1.1rem; }
+.kpi-icon-primary { color: #696cff; background: #e7e7ff; } .kpi-icon-info { color: #03c3ec; background: #d7f5fc; }
+.kpi-icon-success { color: #71dd37; background: #e4f8dc; } .kpi-icon-warning { color: #ffab00; background: #fff2d6; }
+.table th { white-space: nowrap; color: #8592a3; font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; }
+.table td { vertical-align: middle; }
+button:focus-visible, a:focus-visible { outline: 3px solid rgba(105,108,255,.35); outline-offset: 2px; }
+@media (max-width: 575.98px) { .page-context-title { font-size: 1rem; } .user-summary { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+

@@ -1,4 +1,3 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+// Application-specific JavaScript can be added here. Sneat menu behavior is
+// provided by the official vendor/js/menu.js asset loaded by the shared layout.
 
-// Write your JavaScript code.
